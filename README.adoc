@@ -1,0 +1,67 @@
+:toc:
+= jQAssistant HCL Plugin
+
+This project provides a http://jqassistant.org/[jQAssistant] plugin to analyze (https://www.terraform.io/)[HCL] language.
+
+== Usage
+
+=== Prerequisites
+
+* Java 8 or higher
+* Maven 3.2.5 or higher
+* jQAssistant 1.8.0 or higher (see below)
+
+=== Setup
+
+The plugin can be enabled in Maven based project by adding it as a dependency to the jQAssistant Maven plugin:
+
+.pom.xml
+[source,xml]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>com.buschmais.jqassistant</groupId>
+            <artifactId>jqassistant-maven-plugin</artifactId>
+            <version>1.8.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>scan</goal>
+                        <goal>analyze</goal>
+                    </goals>
+                    <configuration>
+                        <concepts>
+                            <concept>ood-metrics:NormalizedDistance</concept>               <!--1-->
+                            <concept>visiblity-metrics:RelativeVisibility</concept>
+                        </concepts>
+                    </configuration>
+                </execution>
+            </executions>
+            <dependencies>
+                <dependency>                                                                <!--2-->
+                    <groupId>org.jqassistant.contrib.plugin</groupId>
+                    <artifactId>jqassistant-hcl-plugin</artifactId>
+                    <version>1.0.0</version>
+                </dependency>
+            </dependencies>
+        </plugin>
+    </plugins>
+</build>
+----
+<1> Configure wanted the concepts of the plugin.
+<2> Declares the plugin as dependency of jQAssistant
+
+== Feedback
+
+Please report any https://github.com/jqassistant-contrib/jqassistant-hcl-plugin/issues[issues].
+
+== Acknowledgements
+
+This plugin could not provide its functionality without the support of the following open source projects:
+
+* https://jqassistant.org/[jQAssistant]
+* https://neo4j.org/[Neo4J]
+* https://maven.apache.org/[Apache Maven]
+
+
