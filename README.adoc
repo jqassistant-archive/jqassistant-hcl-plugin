@@ -49,7 +49,7 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
     </plugins>
 </build>
 ----
-<1> Configure wanted the concepts of the plugin.
+<1> Configure wanted concepts of the plugin.
 <2> Declares the plugin as dependency of jQAssistant
 
 == Feedback
@@ -63,5 +63,3 @@ This plugin could not provide its functionality without the support of the follo
 * https://jqassistant.org/[jQAssistant]
 * https://neo4j.org/[Neo4J]
 * https://maven.apache.org/[Apache Maven]
-
-
