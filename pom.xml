@@ -3,6 +3,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.jqassistant.contrib.common</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.8.0</version>
+  </parent>
+
   <groupId>org.jqassistant.contrib.plugin</groupId>
   <artifactId>jqassistant-hcl-plugin</artifactId>
   <version>1.0.0-SNAPSHOT</version>
@@ -129,7 +135,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
         <configuration>
           <failIfNoTests>true</failIfNoTests>
           <parallel>both</parallel>
@@ -169,7 +174,6 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
         <executions>
           <execution>
             <goals>
@@ -234,51 +238,43 @@
     <dependency>
       <groupId>com.buschmais.jqassistant.core</groupId>
       <artifactId>scanner</artifactId>
-      <version>1.8.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.buschmais.jqassistant.plugin</groupId>
       <artifactId>common</artifactId>
-      <version>1.8.0</version>
       <scope>provided</scope>
     </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>com.buschmais.jqassistant.core</groupId>
       <artifactId>plugin</artifactId>
-      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.buschmais.jqassistant.neo4jserver</groupId>
       <artifactId>neo4jv3</artifactId>
-      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.buschmais.jqassistant.plugin</groupId>
       <artifactId>common</artifactId>
       <type>test-jar</type>
-      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.5.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.14.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>1.8.0-beta4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
