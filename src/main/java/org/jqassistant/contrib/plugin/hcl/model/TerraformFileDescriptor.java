@@ -3,6 +3,7 @@ package org.jqassistant.contrib.plugin.hcl.model;
 import java.util.List;
 
 import com.buschmais.jqassistant.plugin.common.api.model.FileDescriptor;
+import com.buschmais.jqassistant.plugin.common.api.model.ValidDescriptor;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
 
 /**
@@ -12,7 +13,7 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
  * @author Matthias Kay
  * @since 1.0
  */
-public interface TerraformFileDescriptor extends TerraformDescriptor, FileDescriptor {
+public interface TerraformFileDescriptor extends TerraformDescriptor, FileDescriptor, ValidDescriptor {
   @Relation("DECLARES_INPUT_VARIABLE")
   List<TerraformInputVariable> getInputVariables();
 
