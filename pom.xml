@@ -79,25 +79,6 @@
 		</pluginManagement>
 
 		<plugins>
-			<!-- download the HCL grammar into out source tree -->
-			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<version>1.4.0</version>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>wget</goal>
-						</goals>
-						<configuration>
-							<url>https://raw.githubusercontent.com/antlr/grammars-v4/master/terraform/terraform.g4</url>
-							<outputFileName>terraform.g4</outputFileName>
-							<outputDirectory>src/main/antlr4/org/jqassistant/contrib/plugin/hcl/grammar/</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>com.buschmais.jqassistant</groupId>
 				<artifactId>jqassistant-maven-plugin</artifactId>
