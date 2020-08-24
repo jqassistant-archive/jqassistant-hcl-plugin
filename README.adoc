@@ -52,6 +52,9 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
 <1> Configure wanted concepts of the plugin.
 <2> Declares the plugin as dependency of jQAssistant
 
+=== HCL Grammar
+Download the https://raw.githubusercontent.com/antlr/grammars-v4/master/terraform/terraform.g4[grammar] and put the file into `src/main/antlr4/prg/jqassistant/contrib/plugin/hcl/grammar/`
+
 == Feedback
 
 Please report any https://github.com/jqassistant-contrib/jqassistant-hcl-plugin/issues[issues].

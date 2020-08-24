@@ -18,5 +18,3 @@ buildNumber.properties
 
 # surefire
 .surefire*
-
-src/main/antlr4
