@@ -12,7 +12,7 @@ import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.core.store.api.model.Descriptor;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
 
-public class TerraformScannerPluginInfraTest extends AbstractPluginIT {
+public class TerraformScannerPluginIT extends AbstractPluginIT {
   private static final String FILE_TEST_TF = "/terraform/file.tf";
 
   @Before
@@ -27,7 +27,7 @@ public class TerraformScannerPluginInfraTest extends AbstractPluginIT {
 
   @Test
   public void shouldScanTerraformFile() {
-    File testFile = new File(getClassesDirectory(TerraformScannerPluginInfraTest.class), FILE_TEST_TF);
+    File testFile = new File(getClassesDirectory(TerraformScannerPluginIT.class), FILE_TEST_TF);
 
     Descriptor descriptor = getScanner().scan(testFile, FILE_TEST_TF, DefaultScope.NONE);
     assertTrue(true);
