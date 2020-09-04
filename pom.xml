@@ -112,21 +112,6 @@
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 				</configuration>
 			</plugin>
-			<!-- Execute unit tests -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<failIfNoTests>true</failIfNoTests>
-					<parallel>both</parallel>
-					<threadCount>4</threadCount>
-					<runOrder>failedfirst</runOrder>
-					<includes>
-						<include>**/*UnitTest.java</include>
-						<include>**/*InfraTest.java</include>
-					</includes>
-				</configuration>
-			</plugin>
 			<!-- Add commit id and time to the jar file -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
