@@ -6,8 +6,7 @@ import java.io.File;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariableValidation;
 import org.junit.jupiter.api.Test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
@@ -15,16 +14,6 @@ import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
 
 public class TerraformScannerPluginVariableIT extends AbstractPluginIT {
 	private static final String FILE_ALL_TF = "/terraform/input variable/all.tf";
-
-	@BeforeEach
-	public void beginTransaction() {
-		this.store.beginTransaction();
-	}
-
-	@AfterEach
-	public void rollbackTransaction() {
-		this.store.rollbackTransaction();
-	}
 
 	@Test
 	public void shouldReadAllAttributes_whenScan_givenInputVariable() {
@@ -42,5 +31,13 @@ public class TerraformScannerPluginVariableIT extends AbstractPluginIT {
 				.extracting(TerraformInputVariable::getName, TerraformInputVariable::getDefault,
 						TerraformInputVariable::getType, TerraformInputVariable::getDescription)
 				.containsExactly("all", "xyz", "string", "all description");
+
+		final TerraformInputVariableValidation actualValidationRule = actualDescriptor.getInputVariables().get(0)
+				.getValidationConstraint();
+
+		assertThat(actualValidationRule)
+				.extracting(TerraformInputVariableValidation::getRule,
+						TerraformInputVariableValidation::getErrorMessage)
+				.containsExactly("length(var.all) = 7", "error");
 	}
 }

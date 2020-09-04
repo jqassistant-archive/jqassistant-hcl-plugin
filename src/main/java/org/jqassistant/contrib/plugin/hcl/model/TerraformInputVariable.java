@@ -1,34 +1,32 @@
 package org.jqassistant.contrib.plugin.hcl.model;
 
-import java.util.List;
-
 import com.buschmais.xo.neo4j.api.annotation.Label;
-import com.buschmais.xo.neo4j.api.annotation.Relation;
 
 /**
  * Marks an input variable in a terraform file.
- * 
+ *
  * @author Matthias Kay
  * @since 1.0
  */
 @Label("InputVariable")
 public interface TerraformInputVariable extends TerraformBlock {
-  String getName();
+	String getDefault();
 
-  void setName(String name);
+	String getDescription();
 
-  String getDefault();
+	String getName();
 
-  void setDefault(String defaultValue);
+	String getType();
 
-  void setType(String type);
+	TerraformInputVariableValidation getValidationConstraint();
 
-  String getType();
+	void setDefault(String defaultValue);
 
-  String getDescription();
+	void setDescription(String description);
 
-  void setDescription(String description);
+	void setName(String name);
 
-  @Relation("DEPENDS_ON")
-  List<TerraformBlock> getDependencies();
+	void setType(String type);
+
+	void setValidationConstraint(TerraformInputVariableValidation validationConstraint);
 }

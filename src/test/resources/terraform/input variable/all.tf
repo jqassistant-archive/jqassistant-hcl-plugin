@@ -5,6 +5,6 @@ variable "all" {
    
    validation {
      condition = length(var.all) = 7
-     error_message = "String too long."
+     error_message = "error"
    }
 }
