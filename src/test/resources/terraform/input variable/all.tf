@@ -4,7 +4,7 @@ variable "all" {
    type        = string
    
    validation {
-     condition = length(var.all) = 7
+     condition = length(var.all)
      error_message = "error"
    }
 }

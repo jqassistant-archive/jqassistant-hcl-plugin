@@ -11,6 +11,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.FileContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
+import org.jqassistant.contrib.plugin.hcl.visitor.InputVariableParseTreeVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
 			final List<VariableContext> variables = ast.variable();
 			final List<BlockContext> blocks = ast.block();
 
+			variables.forEach(v -> v.accept(new InputVariableParseTreeVisitor()));
 			terraformFileDescriptor.setValid(true);
 		} catch (final IOException e) {
 			terraformFileDescriptor.setValid(false);

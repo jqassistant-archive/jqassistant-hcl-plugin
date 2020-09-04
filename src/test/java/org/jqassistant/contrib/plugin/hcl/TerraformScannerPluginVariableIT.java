@@ -7,6 +7,7 @@ import java.io.File;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariableValidation;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
@@ -39,5 +40,10 @@ public class TerraformScannerPluginVariableIT extends AbstractPluginIT {
 				.extracting(TerraformInputVariableValidation::getRule,
 						TerraformInputVariableValidation::getErrorMessage)
 				.containsExactly("length(var.all) = 7", "error");
+	}
+
+	@BeforeEach
+	public void startTransaction() {
+		this.store.beginTransaction();
 	}
 }
