@@ -25,39 +25,40 @@ import com.buschmais.jqassistant.plugin.common.api.scanner.filesystem.FileResour
 
 @ScannerPlugin.Requires(FileDescriptor.class)
 public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, TerraformFileDescriptor> {
-  private static final Logger logger = LoggerFactory.getLogger(TerraformScannerPlugin.class);
+	private static final Logger logger = LoggerFactory.getLogger(TerraformScannerPlugin.class);
 
-  @Override
-  public boolean accepts(FileResource item, String path, Scope scope) throws IOException {
-    return path.toLowerCase().endsWith(".tf");
-  }
+	@Override
+	public boolean accepts(final FileResource item, final String path, final Scope scope) throws IOException {
+		return path.toLowerCase().endsWith(".tf");
+	}
 
-  @Override
-  public TerraformFileDescriptor scan(FileResource item, String path, Scope scope, Scanner scanner) {
-    ScannerContext context = scanner.getContext();
-    final Store store = context.getStore();
+	@Override
+	public TerraformFileDescriptor scan(final FileResource item, final String path, final Scope scope,
+			final Scanner scanner) {
+		final ScannerContext context = scanner.getContext();
+		final Store store = context.getStore();
 
-    // add the file
-    final FileDescriptor fileDescriptor = context.getCurrentDescriptor();
-    final TerraformFileDescriptor terraformFileDescriptor = store.addDescriptorType(fileDescriptor,
-        TerraformFileDescriptor.class);
+		// add the file
+		final FileDescriptor fileDescriptor = context.getCurrentDescriptor();
+		final TerraformFileDescriptor terraformFileDescriptor = store.addDescriptorType(fileDescriptor,
+				TerraformFileDescriptor.class);
 
-    try {
-      terraformLexer lexer = new terraformLexer(CharStreams.fromStream(item.createStream()));
-      CommonTokenStream tokens = new CommonTokenStream(lexer);
-      terraformParser parser = new terraformParser(tokens);
+		try {
+			final terraformLexer lexer = new terraformLexer(CharStreams.fromStream(item.createStream()));
+			final CommonTokenStream tokens = new CommonTokenStream(lexer);
+			final terraformParser parser = new terraformParser(tokens);
 
-      FileContext ast = parser.file();
-      List<VariableContext> variables = ast.variable();
-      List<BlockContext> blocks = ast.block();
+			final FileContext ast = parser.file();
+			final List<VariableContext> variables = ast.variable();
+			final List<BlockContext> blocks = ast.block();
 
-      terraformFileDescriptor.setValid(true);
-    } catch (IOException e) {
-      terraformFileDescriptor.setValid(false);
+			terraformFileDescriptor.setValid(true);
+		} catch (final IOException e) {
+			terraformFileDescriptor.setValid(false);
 
-      logger.error("Parsing failed", e);
-    }
+			logger.error("Parsing failed", e);
+		}
 
-    return terraformFileDescriptor;
-  }
+		return terraformFileDescriptor;
+	}
 }

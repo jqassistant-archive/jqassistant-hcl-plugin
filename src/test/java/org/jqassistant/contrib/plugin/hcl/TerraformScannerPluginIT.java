@@ -1,13 +1,15 @@
 package org.jqassistant.contrib.plugin.hcl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
 
+import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
-import com.buschmais.jqassistant.core.store.api.model.Descriptor;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
 
 public class TerraformScannerPluginIT extends AbstractPluginIT {
@@ -27,6 +29,8 @@ public class TerraformScannerPluginIT extends AbstractPluginIT {
 	public void shouldScanTerraformFile() {
 		final File testFile = new File(this.getClassesDirectory(TerraformScannerPluginIT.class), FILE_TEST_TF);
 
-		final Descriptor descriptor = this.getScanner().scan(testFile, FILE_TEST_TF, DefaultScope.NONE);
+		final TerraformFileDescriptor descriptor = this.getScanner().scan(testFile, FILE_TEST_TF, DefaultScope.NONE);
+
+		assertThat(descriptor.isValid()).isTrue();
 	}
 }
