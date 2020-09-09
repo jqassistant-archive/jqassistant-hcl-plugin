@@ -8,3 +8,7 @@ variable "all" {
      error_message = "error"
    }
 }
+
+locals {
+  a = "B"
+}

@@ -207,6 +207,11 @@
 			<version>1.7.28</version>
 		</dependency>
 		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>29.0-jre</version>
+		</dependency>
+		<dependency>
 			<groupId>com.buschmais.jqassistant.core</groupId>
 			<artifactId>scanner</artifactId>
 			<scope>provided</scope>
