@@ -44,6 +44,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
 
   private InputVariable extractInputVariable(final ParseTree inputVariableNode) {
     final InputVariable variable = new InputVariable();
+    variable.setName(inputVariableNode.getChild(1).getText());
 
     final Consumer<String> setDefault = s -> variable.setDefaultValue(s);
     final Consumer<String> setType = s -> variable.setType(s);
@@ -53,8 +54,10 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
         setDescription);
 
     // skip the terminals for "{" and "}"
-    for (int i = 1; i < inputVariableNode.getChildCount() - 1; i++) {
-      final ParseTree property = inputVariableNode.getChild(i);
+    final ParseTree properties = inputVariableNode.getChild(2);
+
+    for (int i = 1; i < properties.getChildCount() - 1; i++) {
+      final ParseTree property = properties.getChild(i);
 
       if (property instanceof ArgumentContext) {
         setter.getOrDefault(property.getChild(0).getText(), DO_NOTHING).accept(property.getChild(2).getText());

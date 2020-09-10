@@ -4,11 +4,7 @@ variable "all" {
    type        = string
    
    validation {
-     condition = length(var.all)
-     error_message = "error"
+     condition     = length(var.all) > 0
+     error_message = "This is an error."
    }
-}
-
-locals {
-  a = "B"
 }
