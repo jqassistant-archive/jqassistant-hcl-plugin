@@ -8,8 +8,9 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContex
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
-import org.jqassistant.contrib.plugin.hcl.model.internal.InputVariable;
-import org.jqassistant.contrib.plugin.hcl.model.internal.OutputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.TerraformObject;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
 import com.google.common.base.Preconditions;
@@ -73,6 +74,7 @@ public class ASTParser {
     final Consumer<String> setDescription = s -> outputVariable.setDescription(StringHelper.removeQuotes(s));
     final Consumer<String> setSensitive = s -> outputVariable.setSensitive(StringHelper.removeQuotes(s));
     final Consumer<String> setValue = s -> outputVariable.setValue(StringHelper.removeQuotes(s));
+    final Consumer<TerraformObject> addDependentObject = o -> outputVariable.addDependentObject(o);
 
     final Map<String, Consumer<String>> setter = ImmutableMap.of("description", setDescription, "sensitive",
         setSensitive, "value", setValue);

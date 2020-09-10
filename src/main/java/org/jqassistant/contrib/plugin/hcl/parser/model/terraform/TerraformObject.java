@@ -1,4 +1,4 @@
-package org.jqassistant.contrib.plugin.hcl.model.internal;
+package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
 /**
  * Superclass for all terraform objects to model dependencies between them.

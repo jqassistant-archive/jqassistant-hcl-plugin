@@ -1,11 +1,11 @@
-package org.jqassistant.contrib.plugin.hcl.model.internal;
+package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
 import java.util.List;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 
 public class OutputVariable extends TerraformObject {
-  private List<TerraformObject> dependantObjects;
+  private List<TerraformObject> dependentObjects;
 
   private String description;
 
@@ -14,6 +14,10 @@ public class OutputVariable extends TerraformObject {
   private String sensitive;
 
   private String value;
+
+  public void addDependentObject(final TerraformObject object) {
+    this.dependentObjects.add(object);
+  }
 
   public void setDescription(final String description) {
     this.description = description;

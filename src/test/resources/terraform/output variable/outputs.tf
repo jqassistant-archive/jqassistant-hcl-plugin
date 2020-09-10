@@ -4,6 +4,7 @@ output "db_password" {
   sensitive   = true
   
   depends_on = [
-    aws_db_instance.db
+    aws_db_instance.db,
+    aws_db_instance.db_new
   ]
 }
