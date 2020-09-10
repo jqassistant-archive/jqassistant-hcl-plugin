@@ -18,9 +18,9 @@ public interface TerraformInputVariable extends TerraformBlock {
 
   String getType();
 
-  String getValidationRule();
-
   String getValidationErrorMessage();
+
+  String getValidationRule();
 
   void setDefault(String defaultValue);
 
@@ -30,7 +30,7 @@ public interface TerraformInputVariable extends TerraformBlock {
 
   void setType(String type);
 
-  void setValidationRule(String rule);
-
   void setValidationErrorMessage(String errorMessage);
+
+  void setValidationRule(String rule);
 }

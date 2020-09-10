@@ -67,7 +67,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
 
       logger.error(String.format("Error reading file {}", path), e);
     }
-    logger.trace("XXX");
+
     return terraformFileDescriptor;
   }
 
