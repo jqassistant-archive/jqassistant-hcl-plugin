@@ -8,7 +8,7 @@ import java.util.function.Consumer;
  * @author Matthias Kay
  * @since 1.0
  */
-public class PropertyInstruction {
+public class PropertyParseInstruction {
   enum ResultType {
     LIST, STRING
   }
@@ -16,13 +16,18 @@ public class PropertyInstruction {
   private static final Consumer<ReturnValue<?>> DO_NOTHING = s -> {
   };
 
-  public static final PropertyInstruction IGNORE = new PropertyInstruction(ResultType.STRING, DO_NOTHING);
+  public static final PropertyParseInstruction IGNORE = new PropertyParseInstruction(ResultType.STRING, DO_NOTHING);
 
   private final ResultType resultType;
 
   private final Consumer<ReturnValue<?>> setter;
 
-  public PropertyInstruction(final ResultType resultType, final Consumer<ReturnValue<?>> setter) {
+  /**
+   *
+   * @param resultType To differentiate between various parsing methods
+   * @param setter     A {@link Consumer} to set the value
+   */
+  public PropertyParseInstruction(final ResultType resultType, final Consumer<ReturnValue<?>> setter) {
     this.resultType = resultType;
     this.setter = setter;
   }
@@ -35,6 +40,11 @@ public class PropertyInstruction {
     return this.setter;
   }
 
+  /**
+   * Invokes the {@link Consumer} to set the value of the property.
+   *
+   * @param r The value to set.
+   */
   public void setValue(final ReturnValue<?> r) {
     this.setter.accept(r);
   }

@@ -7,6 +7,6 @@ package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
  * @since 1.0
  *
  */
-public class TerraformObject {
+public abstract class TerraformObject {
 
 }

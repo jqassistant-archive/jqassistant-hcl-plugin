@@ -1,5 +1,12 @@
 package org.jqassistant.contrib.plugin.hcl.util;
 
+/**
+ * Useful functions to ease the string handling.
+ *
+ * @author Matthias Kay
+ * @since 1.0
+ *
+ */
 public class StringHelper {
   /**
    * Removes double quotes at the start and the end of the string if present.

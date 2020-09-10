@@ -9,7 +9,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContex
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
-import org.jqassistant.contrib.plugin.hcl.parser.PropertyInstruction.ResultType;
+import org.jqassistant.contrib.plugin.hcl.parser.PropertyParseInstruction.ResultType;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
@@ -50,12 +50,12 @@ public class ASTParser {
     final Consumer<ReturnValue<?>> setValidationRule = s -> inputVariable
         .setValidationRule(StringHelper.removeQuotes((String) s.get()));
 
-    final Map<String, PropertyInstruction> setter = ImmutableMap.of("default",
-        new PropertyInstruction(ResultType.STRING, setDefault), "type",
-        new PropertyInstruction(ResultType.STRING, setType), "description",
-        new PropertyInstruction(ResultType.STRING, setDescription), "validation.condition",
-        new PropertyInstruction(ResultType.STRING, setValidationRule), "validation.error_message",
-        new PropertyInstruction(ResultType.STRING, setValidationErrorMessage));
+    final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("default",
+        new PropertyParseInstruction(ResultType.STRING, setDefault), "type",
+        new PropertyParseInstruction(ResultType.STRING, setType), "description",
+        new PropertyParseInstruction(ResultType.STRING, setDescription), "validation.condition",
+        new PropertyParseInstruction(ResultType.STRING, setValidationRule), "validation.error_message",
+        new PropertyParseInstruction(ResultType.STRING, setValidationErrorMessage));
 
     parsePropertiesRecursivlyFromBlock(setter, inputVariableContext.getChild(2));
 
@@ -82,11 +82,11 @@ public class ASTParser {
     final Consumer<ReturnValue<?>> setValue = s -> outputVariable.setValue(StringHelper.removeQuotes((String) s.get()));
     final Consumer<ReturnValue<?>> addDependentObject = o -> outputVariable.addDependentObject((String) o.get());
 
-    final Map<String, PropertyInstruction> setter = ImmutableMap.of("depends_on",
-        new PropertyInstruction(ResultType.LIST, addDependentObject), "description",
-        new PropertyInstruction(ResultType.STRING, setDescription), "sensitive",
-        new PropertyInstruction(ResultType.STRING, setSensitive), "value",
-        new PropertyInstruction(ResultType.STRING, setValue));
+    final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("depends_on",
+        new PropertyParseInstruction(ResultType.LIST, addDependentObject), "description",
+        new PropertyParseInstruction(ResultType.STRING, setDescription), "sensitive",
+        new PropertyParseInstruction(ResultType.STRING, setSensitive), "value",
+        new PropertyParseInstruction(ResultType.STRING, setValue));
 
     parsePropertiesRecursivlyFromBlock(setter, outputVariableContext.getChild(2));
 
@@ -117,7 +117,7 @@ public class ASTParser {
    *                       the {@link Consumer} which stores the value.
    * @param node           The BlockbodyContext from the AST.
    */
-  private void parsePropertiesRecursivlyFromBlock(final Map<String, PropertyInstruction> propertySetter,
+  private void parsePropertiesRecursivlyFromBlock(final Map<String, PropertyParseInstruction> propertySetter,
       final ParseTree node) {
     parsePropertiesRecursivlyFromBlock(propertySetter, node, "");
   }
@@ -125,7 +125,7 @@ public class ASTParser {
   /**
    * @see #parsePropertiesRecursivlyFromBlock(Map, ParseTree)
    */
-  private void parsePropertiesRecursivlyFromBlock(final Map<String, PropertyInstruction> propertySetter,
+  private void parsePropertiesRecursivlyFromBlock(final Map<String, PropertyParseInstruction> propertySetter,
       final ParseTree node, final String blockName) {
     // skip the terminals for "{" and "}"
     Preconditions.checkArgument(node.getChildCount() > 2, TERRAFORM_FILE_INVALID_MESSAGE);
@@ -137,8 +137,8 @@ public class ASTParser {
         // identifier = value setting
         Preconditions.checkArgument(property.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
 
-        final PropertyInstruction propertyInstruction = propertySetter
-            .getOrDefault(blockName + property.getChild(0).getText(), PropertyInstruction.IGNORE);
+        final PropertyParseInstruction propertyInstruction = propertySetter
+            .getOrDefault(blockName + property.getChild(0).getText(), PropertyParseInstruction.IGNORE);
 
         switch (propertyInstruction.getResultType()) {
         case LIST:
@@ -146,7 +146,7 @@ public class ASTParser {
           Preconditions.checkArgument(property.getChild(2).getChild(0).getChildCount() >= 1,
               TERRAFORM_FILE_INVALID_MESSAGE);
 
-          parseList(propertySetter.getOrDefault(blockName + property.getChild(0).getText(), PropertyInstruction.IGNORE)
+          parseList(propertySetter.getOrDefault(blockName + property.getChild(0).getText(), PropertyParseInstruction.IGNORE)
               .getSetter(), property.getChild(2).getChild(0).getChild(0), blockName);
           break;
 
