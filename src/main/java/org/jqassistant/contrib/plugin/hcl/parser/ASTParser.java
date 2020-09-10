@@ -9,6 +9,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.model.internal.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -21,6 +22,8 @@ import com.google.common.collect.ImmutableMap;
 public class ASTParser {
   private static final Consumer<String> DO_NOTHING = s -> {
   };
+
+  private static final String TERRAFORM_FILE_INVALID_MESSAGE = "Terraform file is invalid. Please run 'terraform validate'.";
 
   /**
    * Extracts the properties of an input variable.
@@ -72,15 +75,22 @@ public class ASTParser {
   private void extractPropertiesRecursivlyFromBlock(final Map<String, Consumer<String>> propertySetter,
       final ParseTree node, final String blockName) {
     // skip the terminals for "{" and "}"
+    Preconditions.checkArgument(node.getChildCount() > 2, TERRAFORM_FILE_INVALID_MESSAGE);
+
     for (int i = 1; i < node.getChildCount() - 1; i++) {
       final ParseTree property = node.getChild(i);
 
       if (property instanceof ArgumentContext) {
         // identifier = value setting
+        Preconditions.checkArgument(property.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
+
         propertySetter.getOrDefault(blockName + property.getChild(0).getText(), DO_NOTHING)
             .accept(property.getChild(2).getText());
       } else if (property instanceof BlockContext) {
         // a nested block
+        Preconditions.checkArgument(property.getChildCount() >= 2, TERRAFORM_FILE_INVALID_MESSAGE);
+        Preconditions.checkArgument(property.getChild(0).getChildCount() >= 1, TERRAFORM_FILE_INVALID_MESSAGE);
+
         extractPropertiesRecursivlyFromBlock(propertySetter, property.getChild(1),
             blockName + property.getChild(0).getChild(0).getText() + ".");
       }
