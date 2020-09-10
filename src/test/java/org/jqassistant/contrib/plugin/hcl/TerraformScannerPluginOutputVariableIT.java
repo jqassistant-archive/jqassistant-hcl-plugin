@@ -3,7 +3,9 @@ package org.jqassistant.contrib.plugin.hcl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.util.List;
 
+import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,12 @@ public class TerraformScannerPluginOutputVariableIT extends AbstractPluginIT {
             TerraformOutputVariable::getSensitive, TerraformOutputVariable::getValue)
         .containsExactly("db_password", "The password for logging in to the database.", "true",
             "aws_db_instance.db.password");
+
+    final List<TerraformBlock> actualDependantObjects = actualDescriptor.getOutputVariables().get(0)
+        .getDependantObjects();
+
+    assertThat(actualDependantObjects).hasSize(2).extracting(TerraformBlock::getTerraformId)
+        .containsExactlyInAnyOrder("aws_db_instance.db", "aws_db_instance.db_new");
   }
 
   @BeforeEach

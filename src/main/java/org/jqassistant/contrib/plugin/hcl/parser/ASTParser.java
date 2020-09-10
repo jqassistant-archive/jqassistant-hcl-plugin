@@ -4,13 +4,14 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
+import org.jqassistant.contrib.plugin.hcl.parser.PropertyInstruction.ResultType;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
-import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.TerraformObject;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
 import com.google.common.base.Preconditions;
@@ -24,9 +25,6 @@ import com.google.common.collect.ImmutableMap;
  *
  */
 public class ASTParser {
-  private static final Consumer<String> DO_NOTHING = s -> {
-  };
-
   private static final String TERRAFORM_FILE_INVALID_MESSAGE = "Terraform file is invalid. Please run 'terraform validate'.";
 
   /**
@@ -42,16 +40,22 @@ public class ASTParser {
     final InputVariable inputVariable = new InputVariable();
     inputVariable.setName(StringHelper.removeQuotes(inputVariableContext.getChild(1).getText()));
 
-    final Consumer<String> setDefault = s -> inputVariable.setDefaultValue(StringHelper.removeQuotes(s));
-    final Consumer<String> setDescription = s -> inputVariable.setDescription(StringHelper.removeQuotes(s));
-    final Consumer<String> setType = s -> inputVariable.setType(StringHelper.removeQuotes(s));
-    final Consumer<String> setValidationErrorMessage = s -> inputVariable
-        .setValidationErrorMessage(StringHelper.removeQuotes(s));
-    final Consumer<String> setValidationRule = s -> inputVariable.setValidationRule(StringHelper.removeQuotes(s));
+    final Consumer<ReturnValue<?>> setDefault = s -> inputVariable
+        .setDefaultValue(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<ReturnValue<?>> setDescription = s -> inputVariable
+        .setDescription(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<ReturnValue<?>> setType = s -> inputVariable.setType(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<ReturnValue<?>> setValidationErrorMessage = s -> inputVariable
+        .setValidationErrorMessage(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<ReturnValue<?>> setValidationRule = s -> inputVariable
+        .setValidationRule(StringHelper.removeQuotes((String) s.get()));
 
-    final Map<String, Consumer<String>> setter = ImmutableMap.of("default", setDefault, "type", setType, "description",
-        setDescription, "validation.condition", setValidationRule, "validation.error_message",
-        setValidationErrorMessage);
+    final Map<String, PropertyInstruction> setter = ImmutableMap.of("default",
+        new PropertyInstruction(ResultType.STRING, setDefault), "type",
+        new PropertyInstruction(ResultType.STRING, setType), "description",
+        new PropertyInstruction(ResultType.STRING, setDescription), "validation.condition",
+        new PropertyInstruction(ResultType.STRING, setValidationRule), "validation.error_message",
+        new PropertyInstruction(ResultType.STRING, setValidationErrorMessage));
 
     parsePropertiesRecursivlyFromBlock(setter, inputVariableContext.getChild(2));
 
@@ -71,17 +75,34 @@ public class ASTParser {
     final OutputVariable outputVariable = new OutputVariable();
     outputVariable.setName(StringHelper.removeQuotes(outputVariableContext.getChild(1).getText()));
 
-    final Consumer<String> setDescription = s -> outputVariable.setDescription(StringHelper.removeQuotes(s));
-    final Consumer<String> setSensitive = s -> outputVariable.setSensitive(StringHelper.removeQuotes(s));
-    final Consumer<String> setValue = s -> outputVariable.setValue(StringHelper.removeQuotes(s));
-    final Consumer<TerraformObject> addDependentObject = o -> outputVariable.addDependentObject(o);
+    final Consumer<ReturnValue<?>> setDescription = s -> outputVariable
+        .setDescription(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<ReturnValue<?>> setSensitive = s -> outputVariable
+        .setSensitive(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<ReturnValue<?>> setValue = s -> outputVariable.setValue(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<ReturnValue<?>> addDependentObject = o -> outputVariable.addDependentObject((String) o.get());
 
-    final Map<String, Consumer<String>> setter = ImmutableMap.of("description", setDescription, "sensitive",
-        setSensitive, "value", setValue);
+    final Map<String, PropertyInstruction> setter = ImmutableMap.of("depends_on",
+        new PropertyInstruction(ResultType.LIST, addDependentObject), "description",
+        new PropertyInstruction(ResultType.STRING, setDescription), "sensitive",
+        new PropertyInstruction(ResultType.STRING, setSensitive), "value",
+        new PropertyInstruction(ResultType.STRING, setValue));
 
     parsePropertiesRecursivlyFromBlock(setter, outputVariableContext.getChild(2));
 
     return outputVariable;
+  }
+
+  private void parseList(final Consumer<ReturnValue<?>> setter, final ParseTree listContext, final String blockName) {
+    // skip the terminals for "[" and "]"
+    for (int i = 1; i < listContext.getChildCount() - 1; i++) {
+      final ParseTree property = listContext.getChild(i);
+
+      // skip list separator ","
+      if (!(property instanceof TerminalNode)) {
+        setter.accept(new ReturnValue<String>(property.getText()));
+      }
+    }
   }
 
   /**
@@ -96,7 +117,7 @@ public class ASTParser {
    *                       the {@link Consumer} which stores the value.
    * @param node           The BlockbodyContext from the AST.
    */
-  private void parsePropertiesRecursivlyFromBlock(final Map<String, Consumer<String>> propertySetter,
+  private void parsePropertiesRecursivlyFromBlock(final Map<String, PropertyInstruction> propertySetter,
       final ParseTree node) {
     parsePropertiesRecursivlyFromBlock(propertySetter, node, "");
   }
@@ -104,7 +125,7 @@ public class ASTParser {
   /**
    * @see #parsePropertiesRecursivlyFromBlock(Map, ParseTree)
    */
-  private void parsePropertiesRecursivlyFromBlock(final Map<String, Consumer<String>> propertySetter,
+  private void parsePropertiesRecursivlyFromBlock(final Map<String, PropertyInstruction> propertySetter,
       final ParseTree node, final String blockName) {
     // skip the terminals for "{" and "}"
     Preconditions.checkArgument(node.getChildCount() > 2, TERRAFORM_FILE_INVALID_MESSAGE);
@@ -116,8 +137,28 @@ public class ASTParser {
         // identifier = value setting
         Preconditions.checkArgument(property.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
 
-        propertySetter.getOrDefault(blockName + property.getChild(0).getText(), DO_NOTHING)
-            .accept(property.getChild(2).getText());
+        final PropertyInstruction propertyInstruction = propertySetter
+            .getOrDefault(blockName + property.getChild(0).getText(), PropertyInstruction.IGNORE);
+
+        switch (propertyInstruction.getResultType()) {
+        case LIST:
+          Preconditions.checkArgument(property.getChild(2).getChildCount() >= 1, TERRAFORM_FILE_INVALID_MESSAGE);
+          Preconditions.checkArgument(property.getChild(2).getChild(0).getChildCount() >= 1,
+              TERRAFORM_FILE_INVALID_MESSAGE);
+
+          parseList(propertySetter.getOrDefault(blockName + property.getChild(0).getText(), PropertyInstruction.IGNORE)
+              .getSetter(), property.getChild(2).getChild(0).getChild(0), blockName);
+          break;
+
+        case STRING:
+          propertyInstruction.setValue(new ReturnValue<String>(property.getChild(2).getText()));
+          break;
+
+        default:
+          throw new IllegalStateException(
+              String.format("Type of result unknown: %s", propertyInstruction.getResultType().toString()));
+        }
+
       } else if (property instanceof BlockContext) {
         // a nested block
         Preconditions.checkArgument(property.getChildCount() >= 2, TERRAFORM_FILE_INVALID_MESSAGE);

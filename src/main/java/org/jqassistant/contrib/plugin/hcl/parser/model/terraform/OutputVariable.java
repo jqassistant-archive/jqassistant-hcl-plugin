@@ -1,11 +1,14 @@
 package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
+import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
 public class OutputVariable extends TerraformObject {
-  private List<TerraformObject> dependentObjects;
+  private final List<String> dependentObjects = new ArrayList<String>();
 
   private String description;
 
@@ -15,7 +18,7 @@ public class OutputVariable extends TerraformObject {
 
   private String value;
 
-  public void addDependentObject(final TerraformObject object) {
+  public void addDependentObject(final String object) {
     this.dependentObjects.add(object);
   }
 
@@ -41,11 +44,18 @@ public class OutputVariable extends TerraformObject {
    * @param variable the destination object
    * @return <code>variable</code>
    */
-  public TerraformOutputVariable toStore(final TerraformOutputVariable variable) {
+  public TerraformOutputVariable toStore(final TerraformOutputVariable variable, final StoreHelper storeHelper) {
     variable.setDescription(this.description);
     variable.setName(this.name);
     variable.setSensitive(this.sensitive);
     variable.setValue(this.value);
+
+    this.dependentObjects.forEach(dependentObject -> {
+      final TerraformBlock block = storeHelper.createOrRetrieveObject(dependentObject, TerraformBlock.class);
+      block.setTerraformId(dependentObject);
+
+      variable.getDependantObjects().add(block);
+    });
 
     return variable;
   }

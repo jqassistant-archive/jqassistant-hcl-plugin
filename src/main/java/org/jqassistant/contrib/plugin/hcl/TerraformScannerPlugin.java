@@ -14,6 +14,7 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
+import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final List<OutputContext> outputVariables = ast.output();
 
       final ASTParser astParser = new ASTParser();
+      final StoreHelper storeHelper = new StoreHelper(store);
 
       inputVariables.forEach(inputVariableContext -> {
         final TerraformInputVariable variable = store.create(TerraformInputVariable.class);
@@ -65,10 +67,10 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       });
 
       outputVariables.forEach(outputVariableContext -> {
-        final TerraformOutputVariable variable = store.create(TerraformOutputVariable.class);
+        final TerraformOutputVariable outputVariable = store.create(TerraformOutputVariable.class);
 
         terraformFileDescriptor.getOutputVariables()
-            .add(astParser.extractOutputVariable(outputVariableContext).toStore(variable));
+            .add(astParser.extractOutputVariable(outputVariableContext).toStore(outputVariable, storeHelper));
       });
 
       terraformFileDescriptor.setValid(true);
