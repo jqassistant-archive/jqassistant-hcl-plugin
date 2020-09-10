@@ -9,7 +9,6 @@
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable</class>
-		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariableValidation</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable</class>
 	</model>
 	<scanner>

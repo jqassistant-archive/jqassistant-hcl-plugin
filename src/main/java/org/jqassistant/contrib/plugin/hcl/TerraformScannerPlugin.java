@@ -17,6 +17,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContex
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.internal.InputVariable;
+import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,29 +45,43 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
 
   private InputVariable extractInputVariable(final ParseTree inputVariableNode) {
     final InputVariable variable = new InputVariable();
-    variable.setName(inputVariableNode.getChild(1).getText());
+    variable.setName(StringHelper.removeQuotes(inputVariableNode.getChild(1).getText()));
 
-    final Consumer<String> setDefault = s -> variable.setDefaultValue(s);
-    final Consumer<String> setType = s -> variable.setType(s);
-    final Consumer<String> setDescription = s -> variable.setDescription(s);
+    final Consumer<String> setDefault = s -> variable.setDefaultValue(StringHelper.removeQuotes(s));
+    final Consumer<String> setType = s -> variable.setType(StringHelper.removeQuotes(s));
+    final Consumer<String> setDescription = s -> variable.setDescription(StringHelper.removeQuotes(s));
+    final Consumer<String> setValidationRule = s -> variable.setValidationRule(StringHelper.removeQuotes(s));
+    final Consumer<String> setValidationErrorMessage = s -> variable
+        .setValidationErrorMessage(StringHelper.removeQuotes(s));
 
     final Map<String, Consumer<String>> setter = ImmutableMap.of("default", setDefault, "type", setType, "description",
-        setDescription);
+        setDescription, "validation.condition", setValidationRule, "validation.error_message",
+        setValidationErrorMessage);
 
-    // skip the terminals for "{" and "}"
-    final ParseTree properties = inputVariableNode.getChild(2);
-
-    for (int i = 1; i < properties.getChildCount() - 1; i++) {
-      final ParseTree property = properties.getChild(i);
-
-      if (property instanceof ArgumentContext) {
-        setter.getOrDefault(property.getChild(0).getText(), DO_NOTHING).accept(property.getChild(2).getText());
-      } else if (property instanceof BlockContext) {
-        property.getChild(0).getText(); // validation
-      }
-    }
+    extractPropertiesRecursivlyFromBlock(setter, inputVariableNode.getChild(2));
 
     return variable;
+  }
+
+  private void extractPropertiesRecursivlyFromBlock(final Map<String, Consumer<String>> propertySetter,
+      final ParseTree node) {
+    extractPropertiesRecursivlyFromBlock(propertySetter, node, "");
+  }
+
+  private void extractPropertiesRecursivlyFromBlock(final Map<String, Consumer<String>> propertySetter,
+      final ParseTree node, final String blockName) {
+    // skip the terminals for "{" and "}"
+    for (int i = 1; i < node.getChildCount() - 1; i++) {
+      final ParseTree property = node.getChild(i);
+
+      if (property instanceof ArgumentContext) {
+        propertySetter.getOrDefault(blockName + property.getChild(0).getText(), DO_NOTHING)
+            .accept(property.getChild(2).getText());
+      } else if (property instanceof BlockContext) {
+        extractPropertiesRecursivlyFromBlock(propertySetter, property.getChild(1),
+            blockName + property.getChild(0).getChild(0).getText() + ".");
+      }
+    }
   }
 
   @Override
