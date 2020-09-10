@@ -10,23 +10,27 @@ import com.buschmais.xo.neo4j.api.annotation.Label;
  */
 @Label("InputVariable")
 public interface TerraformInputVariable extends TerraformBlock {
-	String getDefault();
+  String getDefault();
 
-	String getDescription();
+  String getDescription();
 
-	String getName();
+  String getName();
 
-	String getType();
+  String getType();
 
-	TerraformInputVariableValidation getValidationConstraint();
+  String getValidationRule();
 
-	void setDefault(String defaultValue);
+  String getValidationErrorMessage();
 
-	void setDescription(String description);
+  void setDefault(String defaultValue);
 
-	void setName(String name);
+  void setDescription(String description);
 
-	void setType(String type);
+  void setName(String name);
 
-	void setValidationConstraint(TerraformInputVariableValidation validationConstraint);
+  void setType(String type);
+
+  void setValidationRule(String rule);
+
+  void setValidationErrorMessage(String errorMessage);
 }
