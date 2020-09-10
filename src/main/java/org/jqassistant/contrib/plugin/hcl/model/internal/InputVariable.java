@@ -2,7 +2,7 @@ package org.jqassistant.contrib.plugin.hcl.model.internal;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
 
-public class InputVariable {
+public class InputVariable extends TerraformObject {
   private String defaultValue;
   private String description;
   private String name;
