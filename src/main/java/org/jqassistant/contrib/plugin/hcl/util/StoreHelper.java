@@ -48,10 +48,6 @@ public class StoreHelper {
     final Result<CompositeRowObject> storeResult = this.store
         .executeQuery(String.format("match (n:Terraform {%s}) where n:%s return n;", fieldClause, label));
 
-    if (storeResult.hasResult()) {
-      return storeResult.getSingleResult().as(clazz);
-    } else {
-      return this.store.create(clazz);
-    }
+    return storeResult.hasResult() ? storeResult.getSingleResult().as(clazz) : this.store.create(clazz);
   }
 }
