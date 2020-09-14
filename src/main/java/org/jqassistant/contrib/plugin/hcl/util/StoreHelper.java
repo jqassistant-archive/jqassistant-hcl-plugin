@@ -21,7 +21,7 @@ public class StoreHelper {
    * Retrieves the object with <code>id</code> from the store or creates a new
    * object if it does not exist.
    *
-   * @param <T>
+   * @param <T>   Creates an object of this type.
    * @param id    Used to find the object in the store.
    * @param clazz {@link Class} of the object to create.
    *

@@ -43,7 +43,7 @@ public class PropertyParseInstruction {
   /**
    * Invokes the {@link Consumer} to set the value of the property.
    *
-   * @param r The value to set.
+   * @param s The value to set.
    */
   public void setValue(final String s) {
     this.setter.accept(s);

@@ -7,6 +7,8 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
+import com.buschmais.jqassistant.core.store.api.Store;
+
 public class OutputVariable extends TerraformObject {
   private final List<String> dependentObjects = new ArrayList<String>();
 
@@ -41,7 +43,8 @@ public class OutputVariable extends TerraformObject {
   /**
    * Converts this object into a {@link TerraformOutputVariable}.
    *
-   * @param variable the destination object
+   * @param variable    the destination object
+   * @param storeHelper helper to access the {@link Store}
    * @return <code>variable</code>
    */
   public TerraformOutputVariable toStore(final TerraformOutputVariable variable, final StoreHelper storeHelper) {
