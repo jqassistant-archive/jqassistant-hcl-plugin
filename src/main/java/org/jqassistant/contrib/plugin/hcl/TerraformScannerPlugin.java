@@ -28,6 +28,7 @@ import com.buschmais.jqassistant.core.store.api.Store;
 import com.buschmais.jqassistant.plugin.common.api.model.FileDescriptor;
 import com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin;
 import com.buschmais.jqassistant.plugin.common.api.scanner.filesystem.FileResource;
+import com.google.common.collect.ImmutableMap;
 
 @ScannerPlugin.Requires(FileDescriptor.class)
 public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, TerraformFileDescriptor> {
@@ -41,7 +42,9 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
   private void addModule(final String path, final StoreHelper storeHelper) {
     final String moduleName = Paths.get(path).getParent().toString();
 
-    final TerraformModule module = storeHelper.createOrRetrieveObject(moduleName, TerraformModule.class);
+    final TerraformModule module = storeHelper.createOrRetrieveObject(ImmutableMap.of("name", moduleName),
+        TerraformModule.class);
+
     module.setName(moduleName);
   }
 

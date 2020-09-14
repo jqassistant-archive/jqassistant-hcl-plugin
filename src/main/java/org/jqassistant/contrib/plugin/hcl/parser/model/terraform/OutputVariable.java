@@ -8,6 +8,7 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
 import com.buschmais.jqassistant.core.store.api.Store;
+import com.google.common.collect.ImmutableMap;
 
 public class OutputVariable extends TerraformObject {
   private final List<String> dependentObjects = new ArrayList<String>();
@@ -53,9 +54,10 @@ public class OutputVariable extends TerraformObject {
     variable.setSensitive(this.sensitive);
     variable.setValue(this.value);
 
-    this.dependentObjects.forEach(dependentObject -> {
-      final TerraformBlock block = storeHelper.createOrRetrieveObject(dependentObject, TerraformBlock.class);
-      block.setTerraformId(dependentObject);
+    this.dependentObjects.forEach(dependentObjectName -> {
+      final TerraformBlock block = storeHelper.createOrRetrieveObject(ImmutableMap.of("name", dependentObjectName),
+          TerraformBlock.class);
+      block.setTerraformId(dependentObjectName);
 
       variable.getDependantObjects().add(block);
     });

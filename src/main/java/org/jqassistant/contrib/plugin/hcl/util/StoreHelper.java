@@ -1,8 +1,13 @@
 package org.jqassistant.contrib.plugin.hcl.util;
 
+import java.util.Map;
+
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 
 import com.buschmais.jqassistant.core.store.api.Store;
+import com.buschmais.xo.api.Query.Result;
+import com.buschmais.xo.api.Query.Result.CompositeRowObject;
+import com.buschmais.xo.neo4j.api.annotation.Label;
 
 /**
  * Some useful helper methods to access the object store.
@@ -21,18 +26,32 @@ public class StoreHelper {
    * Retrieves the object with <code>id</code> from the store or creates a new
    * object if it does not exist.
    *
-   * @param <T>   Creates an object of this type.
-   * @param id    Used to find the object in the store.
-   * @param clazz {@link Class} of the object to create.
+   * @param <T>            Creates an object of this type.
+   * @param searchCriteria A field name to value map
+   * @param clazz          {@link Class} of the object to create/find in the
+   *                       store.
    *
    * @return Either the existing object from the store or a new one.
    */
-  public <T extends TerraformBlock> T createOrRetrieveObject(final String id, final Class<T> clazz) {
-    // TODO search for object with id and return it if present else create new
-    // object
-    final T object = this.store.create(clazz);
-    object.setTerraformId(id);
+  public <T extends TerraformBlock> T createOrRetrieveObject(final Map<String, String> searchCriteria,
+      final Class<T> clazz) {
+    final Label labelAnnotation = clazz.getAnnotation(Label.class);
+    final String label = labelAnnotation.value();
 
-    return object;
+    final StringBuffer fieldClause = new StringBuffer();
+    // replace special characters
+    searchCriteria
+        .forEach((field, value) -> fieldClause.append(String.format("%s: '%s',", field, value.replace("\\", "\\\\"))));
+    // remove trailing ','
+    fieldClause.deleteCharAt(fieldClause.length() - 1);
+
+    final Result<CompositeRowObject> storeResult = this.store
+        .executeQuery(String.format("match (n:Terraform {%s}) where n:%s return n;", fieldClause, label));
+
+    if (storeResult.hasResult()) {
+      return storeResult.getSingleResult().as(clazz);
+    } else {
+      return this.store.create(clazz);
+    }
   }
 }
