@@ -1,6 +1,7 @@
 package org.jqassistant.contrib.plugin.hcl;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.antlr.v4.runtime.CharStreams;
@@ -12,6 +13,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
@@ -36,6 +38,13 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
     return path.toLowerCase().endsWith(".tf");
   }
 
+  private void addModule(final String path, final StoreHelper storeHelper) {
+    final String moduleName = Paths.get(path).getParent().toString();
+
+    final TerraformModule module = storeHelper.createOrRetrieveObject(moduleName, TerraformModule.class);
+    module.setName(moduleName);
+  }
+
   @Override
   public TerraformFileDescriptor scan(final FileResource item, final String path, final Scope scope,
       final Scanner scanner) {
@@ -58,6 +67,8 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
 
       final ASTParser astParser = new ASTParser();
       final StoreHelper storeHelper = new StoreHelper(store);
+
+      addModule(path, storeHelper);
 
       inputVariables.forEach(inputVariableContext -> {
         final TerraformInputVariable variable = store.create(TerraformInputVariable.class);
