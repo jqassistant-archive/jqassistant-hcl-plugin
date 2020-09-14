@@ -40,15 +40,12 @@ public class ASTParser {
     final InputVariable inputVariable = new InputVariable();
     inputVariable.setName(StringHelper.removeQuotes(inputVariableContext.getChild(1).getText()));
 
-    final Consumer<ReturnValue<?>> setDefault = s -> inputVariable
-        .setDefaultValue(StringHelper.removeQuotes((String) s.get()));
-    final Consumer<ReturnValue<?>> setDescription = s -> inputVariable
-        .setDescription(StringHelper.removeQuotes((String) s.get()));
-    final Consumer<ReturnValue<?>> setType = s -> inputVariable.setType(StringHelper.removeQuotes((String) s.get()));
-    final Consumer<ReturnValue<?>> setValidationErrorMessage = s -> inputVariable
-        .setValidationErrorMessage(StringHelper.removeQuotes((String) s.get()));
-    final Consumer<ReturnValue<?>> setValidationRule = s -> inputVariable
-        .setValidationRule(StringHelper.removeQuotes((String) s.get()));
+    final Consumer<String> setDefault = s -> inputVariable.setDefaultValue(StringHelper.removeQuotes(s));
+    final Consumer<String> setDescription = s -> inputVariable.setDescription(StringHelper.removeQuotes(s));
+    final Consumer<String> setType = s -> inputVariable.setType(StringHelper.removeQuotes(s));
+    final Consumer<String> setValidationErrorMessage = s -> inputVariable
+        .setValidationErrorMessage(StringHelper.removeQuotes(s));
+    final Consumer<String> setValidationRule = s -> inputVariable.setValidationRule(StringHelper.removeQuotes(s));
 
     final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("default",
         new PropertyParseInstruction(ResultType.STRING, setDefault), "type",
@@ -75,12 +72,10 @@ public class ASTParser {
     final OutputVariable outputVariable = new OutputVariable();
     outputVariable.setName(StringHelper.removeQuotes(outputVariableContext.getChild(1).getText()));
 
-    final Consumer<ReturnValue<?>> setDescription = s -> outputVariable
-        .setDescription(StringHelper.removeQuotes((String) s.get()));
-    final Consumer<ReturnValue<?>> setSensitive = s -> outputVariable
-        .setSensitive(StringHelper.removeQuotes((String) s.get()));
-    final Consumer<ReturnValue<?>> setValue = s -> outputVariable.setValue(StringHelper.removeQuotes((String) s.get()));
-    final Consumer<ReturnValue<?>> addDependentObject = o -> outputVariable.addDependentObject((String) o.get());
+    final Consumer<String> setDescription = s -> outputVariable.setDescription(StringHelper.removeQuotes(s));
+    final Consumer<String> setSensitive = s -> outputVariable.setSensitive(StringHelper.removeQuotes(s));
+    final Consumer<String> setValue = s -> outputVariable.setValue(StringHelper.removeQuotes(s));
+    final Consumer<String> addDependentObject = s -> outputVariable.addDependentObject(s);
 
     final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("depends_on",
         new PropertyParseInstruction(ResultType.LIST, addDependentObject), "description",
@@ -93,14 +88,14 @@ public class ASTParser {
     return outputVariable;
   }
 
-  private void parseList(final Consumer<ReturnValue<?>> setter, final ParseTree listContext, final String blockName) {
+  private void parseList(final Consumer<String> setter, final ParseTree listContext, final String blockName) {
     // skip the terminals for "[" and "]"
     for (int i = 1; i < listContext.getChildCount() - 1; i++) {
       final ParseTree property = listContext.getChild(i);
 
       // skip list separator ","
       if (!(property instanceof TerminalNode)) {
-        setter.accept(new ReturnValue<String>(property.getText()));
+        setter.accept(property.getText());
       }
     }
   }
@@ -146,12 +141,13 @@ public class ASTParser {
           Preconditions.checkArgument(property.getChild(2).getChild(0).getChildCount() >= 1,
               TERRAFORM_FILE_INVALID_MESSAGE);
 
-          parseList(propertySetter.getOrDefault(blockName + property.getChild(0).getText(), PropertyParseInstruction.IGNORE)
-              .getSetter(), property.getChild(2).getChild(0).getChild(0), blockName);
+          parseList(propertySetter
+              .getOrDefault(blockName + property.getChild(0).getText(), PropertyParseInstruction.IGNORE).getSetter(),
+              property.getChild(2).getChild(0).getChild(0), blockName);
           break;
 
         case STRING:
-          propertyInstruction.setValue(new ReturnValue<String>(property.getChild(2).getText()));
+          propertyInstruction.setValue(property.getChild(2).getText());
           break;
 
         default:

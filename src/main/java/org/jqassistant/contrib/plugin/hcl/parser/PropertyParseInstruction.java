@@ -13,21 +13,21 @@ public class PropertyParseInstruction {
     LIST, STRING
   }
 
-  private static final Consumer<ReturnValue<?>> DO_NOTHING = s -> {
+  private static final Consumer<String> DO_NOTHING = s -> {
   };
 
   public static final PropertyParseInstruction IGNORE = new PropertyParseInstruction(ResultType.STRING, DO_NOTHING);
 
   private final ResultType resultType;
 
-  private final Consumer<ReturnValue<?>> setter;
+  private final Consumer<String> setter;
 
   /**
    *
    * @param resultType To differentiate between various parsing methods
    * @param setter     A {@link Consumer} to set the value
    */
-  public PropertyParseInstruction(final ResultType resultType, final Consumer<ReturnValue<?>> setter) {
+  public PropertyParseInstruction(final ResultType resultType, final Consumer<String> setter) {
     this.resultType = resultType;
     this.setter = setter;
   }
@@ -36,7 +36,7 @@ public class PropertyParseInstruction {
     return this.resultType;
   }
 
-  public Consumer<ReturnValue<?>> getSetter() {
+  public Consumer<String> getSetter() {
     return this.setter;
   }
 
@@ -45,7 +45,7 @@ public class PropertyParseInstruction {
    *
    * @param r The value to set.
    */
-  public void setValue(final ReturnValue<?> r) {
-    this.setter.accept(r);
+  public void setValue(final String s) {
+    this.setter.accept(s);
   }
 }
