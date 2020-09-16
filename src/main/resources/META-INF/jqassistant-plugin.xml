@@ -1,0 +1,17 @@
+<jqassistant-plugin
+	xmlns="http://schema.jqassistant.org/plugin/v1.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://schema.jqassistant.org/plugin/v1.8 https://schema.jqassistant.org/plugin/jqassistant-plugin-v1.8.xsd"
+	name="HCL">
+	<description>Provides a scanner for HashiCorp HCL</description>
+	<model>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformBlock</class>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor</class>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor</class>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable</class>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable</class>
+	</model>
+	<scanner>
+		<class>org.jqassistant.contrib.plugin.hcl.TerraformScannerPlugin</class>
+	</scanner>
+</jqassistant-plugin>

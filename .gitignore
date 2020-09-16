@@ -18,3 +18,4 @@ buildNumber.properties
 
 # surefire
 .surefire*
+src/test/resources/terraform/.terraform/

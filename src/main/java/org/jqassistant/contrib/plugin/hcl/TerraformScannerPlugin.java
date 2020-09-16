@@ -7,10 +7,11 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformLexer;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser;
-import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.FileContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +29,14 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
   private static final Logger logger = LoggerFactory.getLogger(TerraformScannerPlugin.class);
 
   @Override
-  public boolean accepts(FileResource item, String path, Scope scope) throws IOException {
+  public boolean accepts(final FileResource item, final String path, final Scope scope) throws IOException {
     return path.toLowerCase().endsWith(".tf");
   }
 
   @Override
-  public TerraformFileDescriptor scan(FileResource item, String path, Scope scope, Scanner scanner) {
-    ScannerContext context = scanner.getContext();
+  public TerraformFileDescriptor scan(final FileResource item, final String path, final Scope scope,
+      final Scanner scanner) {
+    final ScannerContext context = scanner.getContext();
     final Store store = context.getStore();
 
     // add the file
@@ -43,21 +45,30 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
         TerraformFileDescriptor.class);
 
     try {
-      terraformLexer lexer = new terraformLexer(CharStreams.fromStream(item.createStream()));
-      CommonTokenStream tokens = new CommonTokenStream(lexer);
-      terraformParser parser = new terraformParser(tokens);
+      final terraformLexer lexer = new terraformLexer(CharStreams.fromStream(item.createStream()));
+      final CommonTokenStream tokens = new CommonTokenStream(lexer);
+      final terraformParser parser = new terraformParser(tokens);
 
-      FileContext ast = parser.file();
-      List<VariableContext> variables = ast.variable();
-      List<BlockContext> blocks = ast.block();
+      final FileContext ast = parser.file();
+      final List<VariableContext> variables = ast.variable();
+
+      final ASTParser astParser = new ASTParser();
+
+      variables.forEach(variableContext -> {
+        final TerraformInputVariable variable = store.create(TerraformInputVariable.class);
+
+        terraformFileDescriptor.getInputVariables()
+            .add(astParser.extractInputVariable(variableContext).toStore(variable));
+      });
 
       terraformFileDescriptor.setValid(true);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       terraformFileDescriptor.setValid(false);
 
-      logger.error("Parsing failed", e);
+      logger.error(String.format("Error reading file {}", path), e);
     }
 
     return terraformFileDescriptor;
   }
+
 }
