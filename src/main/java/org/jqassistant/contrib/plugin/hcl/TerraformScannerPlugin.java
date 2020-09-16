@@ -8,10 +8,13 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformLexer;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.FileContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
+import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +53,24 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final terraformParser parser = new terraformParser(tokens);
 
       final FileContext ast = parser.file();
-      final List<VariableContext> variables = ast.variable();
+      final List<VariableContext> inputVariables = ast.variable();
+      final List<OutputContext> outputVariables = ast.output();
 
       final ASTParser astParser = new ASTParser();
+      final StoreHelper storeHelper = new StoreHelper(store);
 
-      variables.forEach(variableContext -> {
+      inputVariables.forEach(inputVariableContext -> {
         final TerraformInputVariable variable = store.create(TerraformInputVariable.class);
 
         terraformFileDescriptor.getInputVariables()
-            .add(astParser.extractInputVariable(variableContext).toStore(variable));
+            .add(astParser.extractInputVariable(inputVariableContext).toStore(variable));
+      });
+
+      outputVariables.forEach(outputVariableContext -> {
+        final TerraformOutputVariable outputVariable = store.create(TerraformOutputVariable.class);
+
+        terraformFileDescriptor.getOutputVariables()
+            .add(astParser.extractOutputVariable(outputVariableContext).toStore(outputVariable, storeHelper));
       });
 
       terraformFileDescriptor.setValid(true);

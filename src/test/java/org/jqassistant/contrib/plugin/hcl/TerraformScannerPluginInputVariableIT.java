@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
 
-public class TerraformScannerPluginVariableIT extends AbstractPluginIT {
+public class TerraformScannerPluginInputVariableIT extends AbstractPluginIT {
   private static final String FILE_ALL_TF = "/terraform/input variable/variables.tf";
 
   @Test
   public void shouldReadAllAttributes_whenScan_givenInputVariable() {
     // given
-    final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginVariableIT.class), FILE_ALL_TF);
+    final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginInputVariableIT.class), FILE_ALL_TF);
 
     // when
     final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_ALL_TF,
