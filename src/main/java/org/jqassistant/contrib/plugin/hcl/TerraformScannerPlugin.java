@@ -13,7 +13,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
-import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
@@ -39,13 +39,18 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
     return path.toLowerCase().endsWith(".tf");
   }
 
-  private TerraformModule createOrRetrieveModule(final String path, final StoreHelper storeHelper) {
-    final String moduleName = Paths.get(path).getParent().toString();
+  private TerraformLogicalModule createOrRetrieveModule(final String path, final StoreHelper storeHelper) {
+    final String moduleName = Paths.get(path).getParent().toString().replace('\\', '/');
 
-    final TerraformModule module = storeHelper
-        .createOrRetrieveObject(ImmutableMap.of(TerraformModule.FieldName.NAME, moduleName), TerraformModule.class);
+    final TerraformLogicalModule module = storeHelper.createOrRetrieveObject(
+        ImmutableMap.of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME, moduleName),
+        TerraformLogicalModule.class);
 
-    module.setName(moduleName);
+    module.setFullQualifiedName(moduleName);
+
+    // identify the ROOT module
+    module.setName(Paths.get(path).getParent().getParent() == null ? "ROOT"
+        : Paths.get(path).getParent().getFileName().toString());
 
     return module;
   }
@@ -73,13 +78,17 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final ASTParser astParser = new ASTParser();
       final StoreHelper storeHelper = new StoreHelper(store);
 
-      final TerraformModule module = createOrRetrieveModule(path, storeHelper);
+      terraformFileDescriptor.setName(item.getFile().getName());
+
+      final TerraformLogicalModule module = createOrRetrieveModule(path, storeHelper);
+      terraformFileDescriptor.setModule(module);
 
       inputVariables.forEach(inputVariableContext -> {
         final TerraformInputVariable inputVariable = astParser.extractInputVariable(inputVariableContext)
             .toStore(storeHelper);
 
         terraformFileDescriptor.getBlocks().add(inputVariable);
+        module.getInputVariables().add(inputVariable);
       });
 
       outputVariables.forEach(outputVariableContext -> {
@@ -87,6 +96,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
             .toStore(storeHelper);
 
         terraformFileDescriptor.getBlocks().add(outputVariable);
+        module.getOutputVariables().add(outputVariable);
       });
 
       terraformFileDescriptor.setValid(true);

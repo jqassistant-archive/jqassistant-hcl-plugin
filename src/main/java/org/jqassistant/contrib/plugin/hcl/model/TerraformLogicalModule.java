@@ -12,9 +12,9 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
  * @since 1.0
  */
 @Label("Module")
-public interface TerraformModule extends TerraformBlock {
+public interface TerraformLogicalModule extends TerraformBlock {
   enum FieldName implements TerraformModelField {
-    NAME("name");
+    FULL_QUALIFIED_NAME("fullQualifiedName");
 
     private final String modelName;
 
@@ -35,6 +35,4 @@ public interface TerraformModule extends TerraformBlock {
 
   @Relation("DECLARES_OUTPUT_VARIABLE")
   List<TerraformOutputVariable> getOutputVariables();
-
-  void setName(String name);
 }

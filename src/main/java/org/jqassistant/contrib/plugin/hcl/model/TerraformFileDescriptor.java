@@ -16,4 +16,9 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 public interface TerraformFileDescriptor extends TerraformDescriptor, FileDescriptor, ValidDescriptor {
   @Relation("REFERENCES")
   List<TerraformBlock> getBlocks();
+
+  @Relation("IS_PART_OF_MODULE")
+  TerraformLogicalModule getModule();
+
+  void setModule(TerraformLogicalModule module);
 }

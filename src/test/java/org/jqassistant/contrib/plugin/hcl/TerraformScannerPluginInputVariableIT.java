@@ -18,7 +18,8 @@ public class TerraformScannerPluginInputVariableIT extends AbstractPluginIT {
   @Test
   public void shouldReadAllAttributes_whenScan_givenInputVariable() {
     // given
-    final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginInputVariableIT.class), FILE_ALL_TF);
+    final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginInputVariableIT.class),
+        FILE_ALL_TF);
 
     // when
     final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_ALL_TF,
@@ -26,7 +27,7 @@ public class TerraformScannerPluginInputVariableIT extends AbstractPluginIT {
 
     // then
     assertThat(actualDescriptor.isValid()).isTrue();
-    assertThat(actualDescriptor.getInputVariables()).hasSize(1).first()
+    assertThat(actualDescriptor.getModule().getInputVariables()).hasSize(1).first()
         .extracting(TerraformInputVariable::getName, TerraformInputVariable::getDefault,
             TerraformInputVariable::getType, TerraformInputVariable::getDescription,
             TerraformInputVariable::getValidationErrorMessage, TerraformInputVariable::getValidationRule)
