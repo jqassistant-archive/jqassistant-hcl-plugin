@@ -74,10 +74,18 @@ public class ASTParser {
     final Module module = new Module();
     module.setName(StringHelper.removeQuotes(moduleContext.getChild(1).getText()));
 
+    final Consumer<String> setCount = s -> module.setCount(StringHelper.removeQuotes(s));
+    final Consumer<String> setForEach = s -> module.setForEach(StringHelper.removeQuotes(s));
+    final Consumer<String> setProviders = s -> module.setProviders(StringHelper.removeQuotes(s));
     final Consumer<String> setSource = s -> module.setSource(StringHelper.removeQuotes(s));
+    final Consumer<String> setVersion = s -> module.setVersion(StringHelper.removeQuotes(s));
 
-    final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("source",
-        new PropertyParseInstruction(ResultType.STRING, setSource));
+    final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("count",
+        new PropertyParseInstruction(ResultType.STRING, setCount), "for_each",
+        new PropertyParseInstruction(ResultType.STRING, setForEach), "providers",
+        new PropertyParseInstruction(ResultType.STRING, setProviders), "source",
+        new PropertyParseInstruction(ResultType.STRING, setSource), "version",
+        new PropertyParseInstruction(ResultType.STRING, setVersion));
 
     parsePropertiesRecursivlyFromBlock(setter, moduleContext.getChild(2));
 

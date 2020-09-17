@@ -1,7 +1,11 @@
 package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
@@ -11,8 +15,13 @@ import com.buschmais.jqassistant.core.store.api.Store;
 import com.google.common.collect.ImmutableMap;
 
 public class Module extends TerraformObject {
+  private String count;
+  private final List<String> dependantResources = new ArrayList<>();
+  private String forEach;
   private String name;
+  private String providers;
   private String source;
+  private String version;
 
   public String getName() {
     return this.name;
@@ -22,12 +31,28 @@ public class Module extends TerraformObject {
     return this.source;
   }
 
+  public void setCount(final String count) {
+    this.count = count;
+  }
+
+  public void setForEach(final String forEach) {
+    this.forEach = forEach;
+  }
+
   public void setName(final String name) {
     this.name = name;
   }
 
+  public void setProviders(final String providers) {
+    this.providers = providers;
+  }
+
   public void setSource(final String source) {
     this.source = source;
+  }
+
+  public void setVersion(final String version) {
+    this.version = version;
   }
 
   /**
@@ -38,24 +63,37 @@ public class Module extends TerraformObject {
    * @param directory   path of the file this module is defined in
    */
   public TerraformModule toStore(final Path directory, final StoreHelper storeHelper) {
-    final TerraformModule module = storeHelper
-        .createOrRetrieveObject(ImmutableMap.of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME,
-            directory.resolve(this.source).normalize().toString().replace('\\', '/')), TerraformModule.class);
+    final boolean isOnLocalFileSystem = this.source.startsWith("./") || this.source.startsWith("../");
+    final String moduleSource = isOnLocalFileSystem
+        ? directory.resolve(this.source).normalize().toString().replace('\\', '/')
+        : this.source;
 
+    final TerraformModule module = storeHelper.createOrRetrieveObject(
+        ImmutableMap.of(TerraformDescriptor.FieldName.NAME, moduleSource), TerraformModule.class);
+
+    module.setCount(this.count);
+    module.setForEach(this.forEach);
     module.setName(this.name);
-    module.setSource(this.source);
+    module.setProviders(this.providers);
+    module.setSource(moduleSource);
+    module.setVersion(this.version);
 
-    final String fullQualifiedNameOfReferencedModule = directory.resolve(this.source).normalize().toString()
-        .replace('\\', '/');
+    this.dependantResources.forEach(dependentObjectName -> {
+      final TerraformBlock block = storeHelper.createOrRetrieveObject(
+          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), TerraformBlock.class);
+      block.setFullQualifiedName(dependentObjectName);
+
+      module.getDependantResources().add(block);
+    });
+
+    final String fullQualifiedNameOfReferencedModule = isOnLocalFileSystem
+        ? directory.resolve(moduleSource).normalize().toString().replace('\\', '/')
+        : this.source;
 
     final TerraformLogicalModule referencedModule = storeHelper.createOrRetrieveObject(
         ImmutableMap.of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule),
         TerraformLogicalModule.class);
     referencedModule.setFullQualifiedName(fullQualifiedNameOfReferencedModule);
-
-    final TerraformLogicalModule referencedModule1 = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule),
-        TerraformLogicalModule.class);
 
     module.setReference(referencedModule);
 

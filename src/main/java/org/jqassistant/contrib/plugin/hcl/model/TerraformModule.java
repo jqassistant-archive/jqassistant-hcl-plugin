@@ -1,5 +1,7 @@
 package org.jqassistant.contrib.plugin.hcl.model;
 
+import java.util.List;
+
 import com.buschmais.xo.neo4j.api.annotation.Label;
 import com.buschmais.xo.neo4j.api.annotation.Relation;
 
@@ -26,12 +28,31 @@ public interface TerraformModule extends TerraformBlock {
     }
   }
 
+  String getCount();
+
+  @Relation("DEPENDS_ON")
+  List<TerraformBlock> getDependantResources();
+
+  String getForEach();
+
+  String getProviders();
+
   @Relation("IS_SOURCED_FROM")
   TerraformLogicalModule getReference();
 
   String getSource();
 
+  String getVersion();
+
+  void setCount(String count);
+
+  void setForEach(String forEach);
+
+  void setProviders(String provider);
+
   void setReference(TerraformLogicalModule logicalModule);
 
   void setSource(String source);
+
+  void setVersion(String version);
 }
