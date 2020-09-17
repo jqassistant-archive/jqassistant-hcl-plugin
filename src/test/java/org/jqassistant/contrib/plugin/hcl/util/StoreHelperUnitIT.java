@@ -20,16 +20,21 @@ public class StoreHelperUnitIT extends AbstractPluginIT {
 
   @Test
   public void shouldReturnSameObject_whenCreateOrRetrieveObject_givenObjectExists() {
-    final StoreHelper s = new StoreHelper(this.store);
-
-    final Map<TerraformModelField, String> searchCriteria = ImmutableMap
+    // given
+    final Map<TerraformModelField, String> givenSearchCriteria = ImmutableMap
         .of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME, "XXX");
 
-    final TerraformLogicalModule created = s.createOrRetrieveObject(searchCriteria, TerraformLogicalModule.class);
-    created.setFullQualifiedName("XXX");
+    // when
+    final StoreHelper s = new StoreHelper(this.store);
 
-    final TerraformLogicalModule found = s.createOrRetrieveObject(searchCriteria, TerraformLogicalModule.class);
+    final TerraformLogicalModule actualCreated = s.createOrRetrieveObject(givenSearchCriteria,
+        TerraformLogicalModule.class);
+    actualCreated.setFullQualifiedName("XXX");
 
-    assertThat(created.getFullQualifiedName()).isEqualTo(found.getFullQualifiedName());
+    final TerraformLogicalModule actualFound = s.createOrRetrieveObject(givenSearchCriteria,
+        TerraformLogicalModule.class);
+
+    // then
+    assertThat(actualCreated.getFullQualifiedName()).isEqualTo(actualFound.getFullQualifiedName());
   }
 }
