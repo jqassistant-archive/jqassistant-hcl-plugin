@@ -3,6 +3,7 @@ package org.jqassistant.contrib.plugin.hcl.util;
 import java.util.Map;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformModelField;
 
 import com.buschmais.jqassistant.core.store.api.Store;
 import com.buschmais.xo.api.Query.Result;
@@ -33,15 +34,15 @@ public class StoreHelper {
    *
    * @return Either the existing object from the store or a new one.
    */
-  public <T extends TerraformBlock> T createOrRetrieveObject(final Map<String, String> searchCriteria,
+  public <T extends TerraformBlock> T createOrRetrieveObject(final Map<TerraformModelField, String> searchCriteria,
       final Class<T> clazz) {
     final Label labelAnnotation = clazz.getAnnotation(Label.class);
     final String label = labelAnnotation.value();
 
     final StringBuffer fieldClause = new StringBuffer();
     // replace special characters
-    searchCriteria
-        .forEach((field, value) -> fieldClause.append(String.format("%s: '%s',", field, value.replace("\\", "\\\\"))));
+    searchCriteria.forEach((field, value) -> fieldClause
+        .append(String.format("%s: '%s',", field.getModelName(), value.replace("\\", "\\\\"))));
     // remove trailing ','
     fieldClause.deleteCharAt(fieldClause.length() - 1);
 

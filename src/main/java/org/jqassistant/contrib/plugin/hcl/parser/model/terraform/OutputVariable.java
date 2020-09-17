@@ -25,6 +25,10 @@ public class OutputVariable extends TerraformObject {
     this.dependentObjects.add(object);
   }
 
+  public String getName() {
+    return this.name;
+  }
+
   public void setDescription(final String description) {
     this.description = description;
   }
@@ -42,22 +46,25 @@ public class OutputVariable extends TerraformObject {
   }
 
   /**
-   * Converts this object into a {@link TerraformOutputVariable}.
+   * Converts this object into a {@link TerraformOutputVariable} and puts it into
+   * the store.
    *
-   * @param variable    the destination object
    * @param storeHelper helper to access the {@link Store}
    * @return <code>variable</code>
    */
-  public TerraformOutputVariable toStore(final TerraformOutputVariable variable, final StoreHelper storeHelper) {
+  public TerraformOutputVariable toStore(final StoreHelper storeHelper) {
+    final TerraformOutputVariable variable = storeHelper.createOrRetrieveObject(
+        ImmutableMap.of(TerraformOutputVariable.FieldName.NAME, this.name), TerraformOutputVariable.class);
+
     variable.setDescription(this.description);
     variable.setName(this.name);
     variable.setSensitive(this.sensitive);
     variable.setValue(this.value);
 
     this.dependentObjects.forEach(dependentObjectName -> {
-      final TerraformBlock block = storeHelper.createOrRetrieveObject(ImmutableMap.of("name", dependentObjectName),
-          TerraformBlock.class);
-      block.setTerraformId(dependentObjectName);
+      final TerraformBlock block = storeHelper.createOrRetrieveObject(
+          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), TerraformBlock.class);
+      block.setFullQualifiedName(dependentObjectName);
 
       variable.getDependantObjects().add(block);
     });

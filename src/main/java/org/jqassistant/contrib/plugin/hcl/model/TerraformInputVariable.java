@@ -10,6 +10,21 @@ import com.buschmais.xo.neo4j.api.annotation.Label;
  */
 @Label("InputVariable")
 public interface TerraformInputVariable extends TerraformBlock {
+  enum FieldName implements TerraformModelField {
+    NAME("name");
+
+    private final String modelName;
+
+    private FieldName(final String modelName) {
+      this.modelName = modelName;
+    }
+
+    @Override
+    public String getModelName() {
+      return this.modelName;
+    }
+  }
+
   String getDefault();
 
   String getDescription();

@@ -39,13 +39,15 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
     return path.toLowerCase().endsWith(".tf");
   }
 
-  private void addModule(final String path, final StoreHelper storeHelper) {
+  private TerraformModule createOrRetrieveModule(final String path, final StoreHelper storeHelper) {
     final String moduleName = Paths.get(path).getParent().toString();
 
-    final TerraformModule module = storeHelper.createOrRetrieveObject(ImmutableMap.of("name", moduleName),
-        TerraformModule.class);
+    final TerraformModule module = storeHelper
+        .createOrRetrieveObject(ImmutableMap.of(TerraformModule.FieldName.NAME, moduleName), TerraformModule.class);
 
     module.setName(moduleName);
+
+    return module;
   }
 
   @Override
@@ -71,20 +73,20 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final ASTParser astParser = new ASTParser();
       final StoreHelper storeHelper = new StoreHelper(store);
 
-      addModule(path, storeHelper);
+      final TerraformModule module = createOrRetrieveModule(path, storeHelper);
 
       inputVariables.forEach(inputVariableContext -> {
-        final TerraformInputVariable variable = store.create(TerraformInputVariable.class);
+        final TerraformInputVariable inputVariable = astParser.extractInputVariable(inputVariableContext)
+            .toStore(storeHelper);
 
-        terraformFileDescriptor.getInputVariables()
-            .add(astParser.extractInputVariable(inputVariableContext).toStore(variable));
+        terraformFileDescriptor.getBlocks().add(inputVariable);
       });
 
       outputVariables.forEach(outputVariableContext -> {
-        final TerraformOutputVariable outputVariable = store.create(TerraformOutputVariable.class);
+        final TerraformOutputVariable outputVariable = astParser.extractOutputVariable(outputVariableContext)
+            .toStore(storeHelper);
 
-        terraformFileDescriptor.getOutputVariables()
-            .add(astParser.extractOutputVariable(outputVariableContext).toStore(outputVariable, storeHelper));
+        terraformFileDescriptor.getBlocks().add(outputVariable);
       });
 
       terraformFileDescriptor.setValid(true);
