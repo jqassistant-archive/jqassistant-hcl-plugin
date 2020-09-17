@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
-import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
@@ -22,6 +21,10 @@ public class Module extends TerraformObject {
   private String providers;
   private String source;
   private String version;
+
+  public void addDependantResource(final String dependantResource) {
+    this.dependantResources.add(dependantResource);
+  }
 
   public String getName() {
     return this.name;
@@ -61,26 +64,32 @@ public class Module extends TerraformObject {
    *
    * @param storeHelper helper to access the {@link Store}
    * @param directory   path of the file this module is defined in
+   *
+   * @return the created {@link TerraformModule}
    */
   public TerraformModule toStore(final Path directory, final StoreHelper storeHelper) {
+    final String fullQualifiedName = directory.toString() + "." + this.name;
+
+    final TerraformModule module = storeHelper.createOrRetrieveObject(
+        ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, fullQualifiedName), TerraformModule.class);
+
     final boolean isOnLocalFileSystem = this.source.startsWith("./") || this.source.startsWith("../");
     final String moduleSource = isOnLocalFileSystem
         ? directory.resolve(this.source).normalize().toString().replace('\\', '/')
         : this.source;
 
-    final TerraformModule module = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformDescriptor.FieldName.NAME, moduleSource), TerraformModule.class);
-
     module.setCount(this.count);
     module.setForEach(this.forEach);
+    module.setFullQualifiedName(fullQualifiedName);
     module.setName(this.name);
     module.setProviders(this.providers);
     module.setSource(moduleSource);
     module.setVersion(this.version);
 
     this.dependantResources.forEach(dependentObjectName -> {
-      final TerraformBlock block = storeHelper.createOrRetrieveObject(
-          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), TerraformBlock.class);
+      final TerraformBlock block = storeHelper.createOrRetrieveObject(ImmutableMap
+          .of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, directory.toString() + "." + dependentObjectName),
+          TerraformBlock.class);
       block.setFullQualifiedName(dependentObjectName);
 
       module.getDependantResources().add(block);

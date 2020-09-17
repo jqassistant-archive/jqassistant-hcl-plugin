@@ -35,7 +35,7 @@ public class TerraformScannerPluginModuleIT extends AbstractPluginIT {
         .filter(m -> "local_count".equals(m.getName())).findFirst().get();
 
     assertThat(actualModule).extracting(TerraformModule::getCount, TerraformModule::getName, TerraformModule::getSource)
-        .containsExactly("2", "local_count", "./test_module");
+        .containsExactly("2", "local_count", "/terraform/module/test_module");
 
     final List<TerraformBlock> actualDependantObjects = actualModule.getDependantResources();
 
@@ -62,7 +62,7 @@ public class TerraformScannerPluginModuleIT extends AbstractPluginIT {
 
     assertThat(actualModule)
         .extracting(TerraformModule::getForEach, TerraformModule::getName, TerraformModule::getSource)
-        .containsExactly("toset([\"assets\", \"media\"])", "local_foreach", "./test_module");
+        .containsExactly("toset([\"assets\",\"media\"])", "local_foreach", "/terraform/module/test_module");
   }
 
   @Test
