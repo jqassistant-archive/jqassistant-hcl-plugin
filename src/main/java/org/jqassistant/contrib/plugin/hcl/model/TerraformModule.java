@@ -1,19 +1,18 @@
 package org.jqassistant.contrib.plugin.hcl.model;
 
-import com.buschmais.jqassistant.core.store.api.model.Descriptor;
 import com.buschmais.xo.neo4j.api.annotation.Label;
+import com.buschmais.xo.neo4j.api.annotation.Relation;
 
 /**
- * Defines the label which is shared by all nodes representing the terraform
- * structure.
+ * Marks an input variable in a terraform file.
  *
  * @author Matthias Kay
  * @since 1.0
  */
-@Label("Terraform")
-public interface TerraformDescriptor extends Descriptor {
+@Label("Module")
+public interface TerraformModule extends TerraformBlock {
   enum FieldName implements TerraformModelField {
-    NAME("name");
+    SOURCE("source");
 
     private final String modelName;
 
@@ -27,7 +26,12 @@ public interface TerraformDescriptor extends Descriptor {
     }
   }
 
-  String getName();
+  @Relation("IS_SOURCED_FROM")
+  TerraformLogicalModule getReference();
 
-  void setName(String fileName);
+  String getSource();
+
+  void setReference(TerraformLogicalModule logicalModule);
+
+  void setSource(String source);
 }

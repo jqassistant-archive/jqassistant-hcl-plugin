@@ -11,7 +11,7 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
  * @author Matthias Kay
  * @since 1.0
  */
-@Label("Module")
+@Label("LogicalModule")
 public interface TerraformLogicalModule extends TerraformBlock {
   enum FieldName implements TerraformModelField {
     FULL_QUALIFIED_NAME("fullQualifiedName");
@@ -28,9 +28,13 @@ public interface TerraformLogicalModule extends TerraformBlock {
     }
   }
 
+  @Relation("CALLS")
+  List<TerraformModule> getCalledModules();
+
   @Relation("DECLARES_INPUT_VARIABLE")
   List<TerraformInputVariable> getInputVariables();
 
+  @Override
   String getName();
 
   @Relation("DECLARES_OUTPUT_VARIABLE")

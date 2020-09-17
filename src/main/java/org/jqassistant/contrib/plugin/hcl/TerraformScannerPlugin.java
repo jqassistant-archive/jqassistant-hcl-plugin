@@ -2,18 +2,16 @@ package org.jqassistant.contrib.plugin.hcl;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.List;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformLexer;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.FileContext;
-import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
-import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
@@ -40,7 +38,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
   }
 
   private TerraformLogicalModule createOrRetrieveModule(final String path, final StoreHelper storeHelper) {
-    final String moduleName = Paths.get(path).getParent().toString().replace('\\', '/');
+    final String moduleName = Paths.get(path).getParent().normalize().toString().replace('\\', '/');
 
     final TerraformLogicalModule module = storeHelper.createOrRetrieveObject(
         ImmutableMap.of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME, moduleName),
@@ -72,33 +70,38 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final terraformParser parser = new terraformParser(tokens);
 
       final FileContext ast = parser.file();
-      final List<VariableContext> inputVariables = ast.variable();
-      final List<OutputContext> outputVariables = ast.output();
 
       final ASTParser astParser = new ASTParser();
       final StoreHelper storeHelper = new StoreHelper(store);
 
       terraformFileDescriptor.setName(item.getFile().getName());
 
-      final TerraformLogicalModule module = createOrRetrieveModule(path, storeHelper);
-      terraformFileDescriptor.setModule(module);
+      final TerraformLogicalModule currentLogicalModule = createOrRetrieveModule(path, storeHelper);
+      terraformFileDescriptor.setModule(currentLogicalModule);
 
-      inputVariables.forEach(inputVariableContext -> {
+      ast.variable().forEach(inputVariableContext -> {
         final TerraformInputVariable inputVariable = astParser.extractInputVariable(inputVariableContext)
             .toStore(storeHelper);
 
         terraformFileDescriptor.getBlocks().add(inputVariable);
-        module.getInputVariables().add(inputVariable);
+        currentLogicalModule.getInputVariables().add(inputVariable);
       });
 
-      outputVariables.forEach(outputVariableContext -> {
+      ast.output().forEach(outputVariableContext -> {
         final TerraformOutputVariable outputVariable = astParser.extractOutputVariable(outputVariableContext)
             .toStore(storeHelper);
 
         terraformFileDescriptor.getBlocks().add(outputVariable);
-        module.getOutputVariables().add(outputVariable);
+        currentLogicalModule.getOutputVariables().add(outputVariable);
       });
+      store.flush();
+      ast.module().forEach(moduleContext -> {
+        final TerraformModule module = astParser.extractModuleCall(moduleContext).toStore(Paths.get(path).getParent(),
+            storeHelper);
 
+        currentLogicalModule.getCalledModules().add(module);
+      });
+      store.flush();
       terraformFileDescriptor.setValid(true);
     } catch (final IOException e) {
       terraformFileDescriptor.setValid(false);

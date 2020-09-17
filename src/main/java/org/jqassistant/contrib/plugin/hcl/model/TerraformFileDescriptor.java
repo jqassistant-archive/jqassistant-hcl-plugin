@@ -17,7 +17,7 @@ public interface TerraformFileDescriptor extends TerraformDescriptor, FileDescri
   @Relation("REFERENCES")
   List<TerraformBlock> getBlocks();
 
-  @Relation("IS_PART_OF_MODULE")
+  @Relation("BELONGS_TO")
   TerraformLogicalModule getModule();
 
   void setModule(TerraformLogicalModule module);

@@ -21,7 +21,7 @@ public class StoreHelper {
 
   public StoreHelper(final Store store) {
     this.store = store;
-  };
+  }
 
   /**
    * Retrieves the object with <code>id</code> from the store or creates a new
@@ -47,8 +47,8 @@ public class StoreHelper {
     fieldClause.deleteCharAt(fieldClause.length() - 1);
 
     final Result<CompositeRowObject> storeResult = this.store
-        .executeQuery(String.format("match (n:Terraform {%s}) where n:%s return n;", fieldClause, label));
+        .executeQuery(String.format("match (n:Terraform {%s}) where n:%s return n", fieldClause, label));
 
-    return storeResult.hasResult() ? storeResult.getSingleResult().as(clazz) : this.store.create(clazz);
-  }
+    return storeResult.hasResult() ? storeResult.getSingleResult().get("n", clazz) : this.store.create(clazz);
+  };
 }

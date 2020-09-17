@@ -7,10 +7,12 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ModuleContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.parser.PropertyParseInstruction.ResultType;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
@@ -57,6 +59,29 @@ public class ASTParser {
     parsePropertiesRecursivlyFromBlock(setter, inputVariableContext.getChild(2));
 
     return inputVariable;
+  }
+
+  /**
+   * Extracts the properties of a module call.
+   *
+   * @param moduleContext Points to a module definition in the AST and is
+   *                      extracted.
+   * @return The {@link Module} extracted from the AST.
+   */
+  public Module extractModuleCall(final ModuleContext moduleContext) {
+    Preconditions.checkArgument(moduleContext.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final Module module = new Module();
+    module.setName(StringHelper.removeQuotes(moduleContext.getChild(1).getText()));
+
+    final Consumer<String> setSource = s -> module.setSource(StringHelper.removeQuotes(s));
+
+    final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("source",
+        new PropertyParseInstruction(ResultType.STRING, setSource));
+
+    parsePropertiesRecursivlyFromBlock(setter, moduleContext.getChild(2));
+
+    return module;
   }
 
   /**
