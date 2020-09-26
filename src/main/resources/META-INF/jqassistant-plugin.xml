@@ -12,6 +12,7 @@
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformModule</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable</class>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformProvider</class>
 	</model>
 	<scanner>
 		<class>org.jqassistant.contrib.plugin.hcl.TerraformScannerPlugin</class>

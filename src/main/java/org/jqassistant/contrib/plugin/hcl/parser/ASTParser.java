@@ -1,5 +1,6 @@
 package org.jqassistant.contrib.plugin.hcl.parser;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -12,11 +13,13 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContex
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ModuleContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ProviderContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.parser.PropertyParseInstruction.ResultType;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
 import com.google.common.base.Preconditions;
@@ -129,6 +132,27 @@ public class ASTParser {
     parsePropertiesRecursivlyFromBlock(setter, outputVariableContext.getChild(2));
 
     return outputVariable;
+  }
+
+  /**
+   * Extracts the properties of a provider definition.
+   *
+   * @param providerContext Points to an output variable of the AST and is
+   *                        extracted.
+   * @return The {@link Provider} extracted from the AST.
+   */
+  public Provider extractProvider(final ProviderContext providerContext) {
+    Preconditions.checkArgument(providerContext.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final Provider provider = new Provider();
+
+    final BiConsumer<String, String> setProperty = (name, value) -> {
+      provider.setProperty(name, value);
+    };
+
+    parseUnknownPropertiesFromBlock(Collections.emptySet(), setProperty, providerContext.getChild(2));
+
+    return provider;
   }
 
   private void parseList(final Consumer<String> setter, final ParseTree listContext, final String blockName) {

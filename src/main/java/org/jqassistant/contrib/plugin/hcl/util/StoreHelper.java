@@ -46,6 +46,19 @@ public class StoreHelper {
   }
 
   /**
+   * Add the property <code>name</code> with <code>value</code> to the
+   * <code>object</code>.
+   *
+   * @param object to add the name/value to
+   * @param name   property name
+   * @param value  property value
+   */
+  public void addPropertyToObject(final TerraformBlock object, final String name, final String value) {
+    this.store.executeQuery(
+        String.format("match (s:Terraform) set s.%s = '%s' where ID(s) =  %s", name, value, object.getId().toString()));
+  }
+
+  /**
    * Retrieves the object with <code>id</code> from the store or creates a new
    * object if it does not exist.
    *

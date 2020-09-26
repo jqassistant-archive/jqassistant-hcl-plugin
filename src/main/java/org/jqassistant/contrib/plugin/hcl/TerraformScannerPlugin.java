@@ -13,6 +13,7 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformProvider;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import org.slf4j.Logger;
@@ -99,7 +100,14 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
         final TerraformModule module = astParser.extractModuleCall(moduleContext).toStore(Paths.get(path).getParent(),
             storeHelper);
 
+        terraformFileDescriptor.getBlocks().add(module);
         currentLogicalModule.getCalledModules().add(module);
+      });
+
+      ast.provider().forEach(providerContext -> {
+        final TerraformProvider provider = astParser.extractProvider(providerContext).toStore(storeHelper);
+
+        terraformFileDescriptor.getBlocks().add(provider);
       });
 
       terraformFileDescriptor.setValid(true);
