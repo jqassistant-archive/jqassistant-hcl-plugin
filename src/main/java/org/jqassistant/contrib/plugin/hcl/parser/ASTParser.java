@@ -2,6 +2,8 @@ package org.jqassistant.contrib.plugin.hcl.parser;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -91,6 +93,11 @@ public class ASTParser {
     setter.put("version", new PropertyParseInstruction(ResultType.STRING, setVersion));
 
     parsePropertiesRecursivlyFromBlock(setter, moduleContext.getChild(2));
+
+    final BiConsumer<String, String> matchInputVariable = (variable, value) -> module.addInputVariableMapping(variable,
+        value);
+
+    parseUnknownPropertiesFromBlock(setter.keySet(), matchInputVariable, moduleContext.getChild(2));
 
     return module;
   }
@@ -198,6 +205,33 @@ public class ASTParser {
 
         parsePropertiesRecursivlyFromBlock(propertySetter, property.getChild(1),
             blockName + property.getChild(0).getChild(0).getText() + ".");
+      }
+    }
+  }
+
+  /**
+   * Finds all properties which should not be ignored and calls the
+   * {@link BiConsumer} for them.
+   *
+   * @param ignoreProperties these properties are ignored
+   * @param propertySetter   called for each unknown property
+   * @param node             The BlockbodyContext from the AST.
+   */
+  private void parseUnknownPropertiesFromBlock(final Set<String> ignoreProperties,
+      final BiConsumer<String, String> propertySetter, final ParseTree node) {
+    // skip the terminals for "{" and "}"
+    Preconditions.checkArgument(node.getChildCount() > 2, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    for (int i = 1; i < node.getChildCount() - 1; i++) {
+      final ParseTree property = node.getChild(i);
+
+      if (property instanceof ArgumentContext) {
+        // identifier = value setting
+        Preconditions.checkArgument(property.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
+
+        if (!ignoreProperties.contains(property.getChild(0).getText())) {
+          propertySetter.accept(property.getChild(0).getText(), property.getChild(2).getText());
+        }
       }
     }
   }

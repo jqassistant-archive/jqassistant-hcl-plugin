@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
+import com.buschmais.xo.api.Query.Result;
+import com.buschmais.xo.api.Query.Result.CompositeRowObject;
 
 public class TerraformScannerPluginModuleIT extends AbstractPluginIT {
   private static final String FILE_NAME = "/terraform/module/main.tf";
@@ -41,6 +43,11 @@ public class TerraformScannerPluginModuleIT extends AbstractPluginIT {
 
     assertThat(actualDependantObjects).hasSize(1).extracting(TerraformBlock::getFullQualifiedName)
         .containsExactlyInAnyOrder("aws_db_instance.main");
+
+    // read all properties which were added and are not part of the model
+    final Result<CompositeRowObject> inputVariables = this.store
+        .executeQuery(String.format("match (n:Terraform) where ID(n) = %s return n", actualModule.getId().toString()));
+    System.out.println(inputVariables);
   }
 
   @Test

@@ -24,6 +24,28 @@ public class StoreHelper {
   }
 
   /**
+   * Adds properties to the relationship <code>relationshipName</code> from
+   * <code>source</code> to <code>destination</code>.
+   *
+   * @param source           the source node of the relationship
+   * @param destination      the destination node of the relationship
+   * @param relationshipName the name of the relationship
+   * @param properties       the properties to add
+   */
+  public void addPropertiesToRelationship(final TerraformBlock source, final TerraformBlock destination,
+      final String relationshipName, final Map<String, String> properties) {
+    final StringBuffer addFieldClause = new StringBuffer();
+    // replace special characters
+    properties.forEach(
+        (field, value) -> addFieldClause.append(String.format("SET r.%s = '%s'", field, value.replace("\\", "\\\\"))));
+    System.out.println(String.format("match (s:Block)-[r:%s]-(d:Block) where ID(s) = %s and ID(d) = %s %s return r",
+        relationshipName, source.getId().toString(), destination.getId().toString(), addFieldClause));
+    this.store
+        .executeQuery(String.format("match (s:Block)-[r:%s]-(d:Block) where ID(s) = %s and ID(d) = %s %s return r",
+            relationshipName, source.getId().toString(), destination.getId().toString(), addFieldClause));
+  }
+
+  /**
    * Retrieves the object with <code>id</code> from the store or creates a new
    * object if it does not exist.
    *

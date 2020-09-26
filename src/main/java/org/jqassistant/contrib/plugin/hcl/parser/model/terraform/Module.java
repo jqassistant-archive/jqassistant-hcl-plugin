@@ -2,7 +2,9 @@ package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
@@ -17,6 +19,7 @@ public class Module extends TerraformObject {
   private String count;
   private final List<String> dependantResources = new ArrayList<>();
   private String forEach;
+  private final Map<String, String> matchedInputVariables = new HashMap<>();
   private String name;
   private String providers;
   private String source;
@@ -24,6 +27,10 @@ public class Module extends TerraformObject {
 
   public void addDependantResource(final String dependantResource) {
     this.dependantResources.add(dependantResource);
+  }
+
+  public void addInputVariableMapping(final String inputVariableName, final String mappedValue) {
+    this.matchedInputVariables.put(inputVariableName, mappedValue);
   }
 
   public String getName() {
@@ -105,6 +112,8 @@ public class Module extends TerraformObject {
     referencedModule.setFullQualifiedName(fullQualifiedNameOfReferencedModule);
 
     module.setReference(referencedModule);
+
+    storeHelper.addPropertiesToRelationship(module, referencedModule, "CALLS", this.matchedInputVariables);
 
     return module;
   }
