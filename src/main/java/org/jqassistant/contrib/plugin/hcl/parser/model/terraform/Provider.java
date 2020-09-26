@@ -10,7 +10,13 @@ import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import com.buschmais.jqassistant.core.store.api.Store;
 
 public class Provider extends TerraformObject {
+  private String name;
+
   Map<String, String> properties = new HashMap<>();
+
+  public void setName(final String name) {
+    this.name = name;
+  }
 
   /**
    * Stores the value of a named property.
@@ -33,6 +39,7 @@ public class Provider extends TerraformObject {
   public TerraformProvider toStore(final StoreHelper storeHelper) {
     final TerraformProvider provider = storeHelper.createOrRetrieveObject(Collections.emptyMap(),
         TerraformProvider.class);
+    provider.setName(this.name);
 
     this.properties.forEach((name, value) -> {
       storeHelper.addPropertyToObject(provider, name, value);

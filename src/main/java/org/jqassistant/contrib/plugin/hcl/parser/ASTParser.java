@@ -145,6 +145,7 @@ public class ASTParser {
     Preconditions.checkArgument(providerContext.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
 
     final Provider provider = new Provider();
+    provider.setName(StringHelper.removeQuotes(providerContext.getChild(1).getText()));
 
     final BiConsumer<String, String> setProperty = (name, value) -> {
       provider.setProperty(name, value);
