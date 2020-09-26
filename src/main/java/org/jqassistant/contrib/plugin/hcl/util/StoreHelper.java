@@ -54,8 +54,8 @@ public class StoreHelper {
    * @param value  property value
    */
   public void addPropertyToObject(final TerraformBlock object, final String name, final String value) {
-    this.store.executeQuery(
-        String.format("match (s:Terraform) set s.%s = '%s' where ID(s) =  %s", name, value, object.getId().toString()));
+    this.store.executeQuery(String.format("match (s:Terraform) where ID(s) =  %s set s.%s = '%s' return s.id",
+        object.getId().toString(), name, value));
   }
 
   /**
@@ -74,15 +74,20 @@ public class StoreHelper {
     final Label labelAnnotation = clazz.getAnnotation(Label.class);
     final String label = labelAnnotation.value();
 
-    final StringBuffer fieldClause = new StringBuffer();
-    // replace special characters
-    searchCriteria.forEach((field, value) -> fieldClause
-        .append(String.format("%s: '%s',", field.getModelName(), value.replace("\\", "\\\\"))));
-    // remove trailing ','
-    fieldClause.deleteCharAt(fieldClause.length() - 1);
+    final StringBuffer fieldClause = new StringBuffer("{");
+
+    if (!searchCriteria.isEmpty()) {
+      // replace special characters
+      searchCriteria.forEach((field, value) -> fieldClause
+          .append(String.format("%s: '%s',", field.getModelName(), value.replace("\\", "\\\\"))));
+      // remove trailing ','
+      fieldClause.deleteCharAt(fieldClause.length() - 1);
+    }
+
+    fieldClause.append("}");
 
     final Result<CompositeRowObject> storeResult = this.store
-        .executeQuery(String.format("match (n:Terraform {%s}) where n:%s return n", fieldClause, label));
+        .executeQuery(String.format("match (n:Terraform %s) where n:%s return n", fieldClause, label));
 
     return storeResult.hasResult() ? storeResult.getSingleResult().get("n", clazz) : this.store.create(clazz);
   };

@@ -100,14 +100,13 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
         final TerraformModule module = astParser.extractModuleCall(moduleContext).toStore(Paths.get(path).getParent(),
             storeHelper);
 
-        terraformFileDescriptor.getBlocks().add(module);
         currentLogicalModule.getCalledModules().add(module);
       });
 
       ast.provider().forEach(providerContext -> {
         final TerraformProvider provider = astParser.extractProvider(providerContext).toStore(storeHelper);
 
-        terraformFileDescriptor.getBlocks().add(provider);
+        currentLogicalModule.getProviders().add(provider);
       });
 
       terraformFileDescriptor.setValid(true);

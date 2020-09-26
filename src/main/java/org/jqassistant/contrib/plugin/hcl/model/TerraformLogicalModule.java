@@ -39,4 +39,7 @@ public interface TerraformLogicalModule extends TerraformBlock {
 
   @Relation("DECLARES_OUTPUT_VARIABLE")
   List<TerraformOutputVariable> getOutputVariables();
+
+  @Relation("CREATES_RESOURCES_VIA")
+  List<TerraformProvider> getProviders();
 }

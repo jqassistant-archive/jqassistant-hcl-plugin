@@ -148,7 +148,7 @@ public class ASTParser {
     provider.setName(StringHelper.removeQuotes(providerContext.getChild(1).getText()));
 
     final BiConsumer<String, String> setProperty = (name, value) -> {
-      provider.setProperty(name, value);
+      provider.setProperty(StringHelper.removeQuotes(name), StringHelper.removeQuotes(value));
     };
 
     parseUnknownPropertiesFromBlock(Collections.emptySet(), setProperty, providerContext.getChild(2));
