@@ -9,14 +9,16 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
 /**
  * Represents a Terraform file. The labels are inherited from
  * {@link TerraformDescriptor} and {@link FileDescriptor}.
- * 
+ *
  * @author Matthias Kay
  * @since 1.0
  */
 public interface TerraformFileDescriptor extends TerraformDescriptor, FileDescriptor, ValidDescriptor {
-  @Relation("DECLARES_INPUT_VARIABLE")
-  List<TerraformInputVariable> getInputVariables();
+  @Relation("REFERENCES")
+  List<TerraformBlock> getBlocks();
 
-  @Relation("DECLARES_OUTPUT_VARIABLE")
-  List<TerraformOutputVariable> getOutputVariables();
+  @Relation("BELONGS_TO")
+  TerraformLogicalModule getModule();
+
+  void setModule(TerraformLogicalModule module);
 }

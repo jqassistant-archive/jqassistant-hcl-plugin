@@ -1,17 +1,25 @@
 package org.jqassistant.contrib.plugin.hcl.parser;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ModuleContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ProviderContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.parser.PropertyParseInstruction.ResultType;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
 import com.google.common.base.Preconditions;
@@ -60,6 +68,44 @@ public class ASTParser {
   }
 
   /**
+   * Extracts the properties of a module call.
+   *
+   * @param moduleContext Points to a module definition in the AST and is
+   *                      extracted.
+   * @return The {@link Module} extracted from the AST.
+   */
+  public Module extractModuleCall(final ModuleContext moduleContext) {
+    Preconditions.checkArgument(moduleContext.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final Module module = new Module();
+    module.setName(StringHelper.removeQuotes(moduleContext.getChild(1).getText()));
+
+    final Consumer<String> addDependentObject = s -> module.addDependantResource(StringHelper.removeQuotes(s));
+    final Consumer<String> setCount = s -> module.setCount(StringHelper.removeQuotes(s));
+    final Consumer<String> setForEach = s -> module.setForEach(StringHelper.removeQuotes(s));
+    final Consumer<String> setProviders = s -> module.setProviders(StringHelper.removeQuotes(s));
+    final Consumer<String> setSource = s -> module.setSource(StringHelper.removeQuotes(s));
+    final Consumer<String> setVersion = s -> module.setVersion(StringHelper.removeQuotes(s));
+
+    final Map<String, PropertyParseInstruction> setter = new HashMap<>();
+    setter.put("count", new PropertyParseInstruction(ResultType.STRING, setCount));
+    setter.put("depends_on", new PropertyParseInstruction(ResultType.LIST, addDependentObject));
+    setter.put("for_each", new PropertyParseInstruction(ResultType.STRING, setForEach));
+    setter.put("providers", new PropertyParseInstruction(ResultType.STRING, setProviders));
+    setter.put("source", new PropertyParseInstruction(ResultType.STRING, setSource));
+    setter.put("version", new PropertyParseInstruction(ResultType.STRING, setVersion));
+
+    parsePropertiesRecursivlyFromBlock(setter, moduleContext.getChild(2));
+
+    final BiConsumer<String, String> matchInputVariable = (variable, value) -> module.addInputVariableMapping(variable,
+        StringHelper.removeQuotes(value));
+
+    parseUnknownPropertiesFromBlock(setter.keySet(), matchInputVariable, moduleContext.getChild(2));
+
+    return module;
+  }
+
+  /**
    * Extracts the properties of an output variable.
    *
    * @param outputVariableContext Points to an output variable of the AST and is
@@ -86,6 +132,28 @@ public class ASTParser {
     parsePropertiesRecursivlyFromBlock(setter, outputVariableContext.getChild(2));
 
     return outputVariable;
+  }
+
+  /**
+   * Extracts the properties of a provider definition.
+   *
+   * @param providerContext Points to an output variable of the AST and is
+   *                        extracted.
+   * @return The {@link Provider} extracted from the AST.
+   */
+  public Provider extractProvider(final ProviderContext providerContext) {
+    Preconditions.checkArgument(providerContext.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final Provider provider = new Provider();
+    provider.setName(StringHelper.removeQuotes(providerContext.getChild(1).getText()));
+
+    final BiConsumer<String, String> setProperty = (name, value) -> {
+      provider.setProperty(StringHelper.removeQuotes(name), StringHelper.removeQuotes(value));
+    };
+
+    parseUnknownPropertiesFromBlock(Collections.emptySet(), setProperty, providerContext.getChild(2));
+
+    return provider;
   }
 
   private void parseList(final Consumer<String> setter, final ParseTree listContext, final String blockName) {
@@ -162,6 +230,33 @@ public class ASTParser {
 
         parsePropertiesRecursivlyFromBlock(propertySetter, property.getChild(1),
             blockName + property.getChild(0).getChild(0).getText() + ".");
+      }
+    }
+  }
+
+  /**
+   * Finds all properties which should not be ignored and calls the
+   * {@link BiConsumer} for them.
+   *
+   * @param ignoreProperties these properties are ignored
+   * @param propertySetter   called for each unknown property
+   * @param node             The BlockbodyContext from the AST.
+   */
+  private void parseUnknownPropertiesFromBlock(final Set<String> ignoreProperties,
+      final BiConsumer<String, String> propertySetter, final ParseTree node) {
+    // skip the terminals for "{" and "}"
+    Preconditions.checkArgument(node.getChildCount() > 2, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    for (int i = 1; i < node.getChildCount() - 1; i++) {
+      final ParseTree property = node.getChild(i);
+
+      if (property instanceof ArgumentContext) {
+        // identifier = value setting
+        Preconditions.checkArgument(property.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
+
+        if (!ignoreProperties.contains(property.getChild(0).getText())) {
+          propertySetter.accept(property.getChild(0).getText(), property.getChild(2).getText());
+        }
       }
     }
   }

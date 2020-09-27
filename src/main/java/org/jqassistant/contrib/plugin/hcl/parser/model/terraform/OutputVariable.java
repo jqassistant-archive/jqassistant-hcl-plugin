@@ -8,6 +8,7 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
 import com.buschmais.jqassistant.core.store.api.Store;
+import com.google.common.collect.ImmutableMap;
 
 public class OutputVariable extends TerraformObject {
   private final List<String> dependentObjects = new ArrayList<String>();
@@ -22,6 +23,10 @@ public class OutputVariable extends TerraformObject {
 
   public void addDependentObject(final String object) {
     this.dependentObjects.add(object);
+  }
+
+  public String getName() {
+    return this.name;
   }
 
   public void setDescription(final String description) {
@@ -41,21 +46,25 @@ public class OutputVariable extends TerraformObject {
   }
 
   /**
-   * Converts this object into a {@link TerraformOutputVariable}.
+   * Converts this object into a {@link TerraformOutputVariable} and puts it into
+   * the store.
    *
-   * @param variable    the destination object
    * @param storeHelper helper to access the {@link Store}
    * @return <code>variable</code>
    */
-  public TerraformOutputVariable toStore(final TerraformOutputVariable variable, final StoreHelper storeHelper) {
+  public TerraformOutputVariable toStore(final StoreHelper storeHelper) {
+    final TerraformOutputVariable variable = storeHelper.createOrRetrieveObject(
+        ImmutableMap.of(TerraformOutputVariable.FieldName.NAME, this.name), TerraformOutputVariable.class);
+
     variable.setDescription(this.description);
     variable.setName(this.name);
     variable.setSensitive(this.sensitive);
     variable.setValue(this.value);
 
-    this.dependentObjects.forEach(dependentObject -> {
-      final TerraformBlock block = storeHelper.createOrRetrieveObject(dependentObject, TerraformBlock.class);
-      block.setTerraformId(dependentObject);
+    this.dependentObjects.forEach(dependentObjectName -> {
+      final TerraformBlock block = storeHelper.createOrRetrieveObject(
+          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), TerraformBlock.class);
+      block.setFullQualifiedName(dependentObjectName);
 
       variable.getDependantObjects().add(block);
     });

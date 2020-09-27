@@ -1,8 +1,14 @@
 package org.jqassistant.contrib.plugin.hcl.util;
 
+import java.util.Map;
+
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformModelField;
 
 import com.buschmais.jqassistant.core.store.api.Store;
+import com.buschmais.xo.api.Query.Result;
+import com.buschmais.xo.api.Query.Result.CompositeRowObject;
+import com.buschmais.xo.neo4j.api.annotation.Label;
 
 /**
  * Some useful helper methods to access the object store.
@@ -15,24 +21,53 @@ public class StoreHelper {
 
   public StoreHelper(final Store store) {
     this.store = store;
-  };
+  }
+
+  /**
+   * Add the property <code>name</code> with <code>value</code> to the
+   * <code>object</code>.
+   *
+   * @param object     to add the name/value to
+   * @param properties The properties to add
+   */
+  public void addPropertiesToObject(final TerraformBlock object, final Map<String, String> properties) {
+    properties.forEach((name, value) -> {
+      this.store.executeQuery(String.format("match (s:Terraform) where ID(s) =  %s set s.%s = '%s' return s.id",
+          object.getId().toString(), name, value));
+    });
+  }
 
   /**
    * Retrieves the object with <code>id</code> from the store or creates a new
    * object if it does not exist.
    *
-   * @param <T>   Creates an object of this type.
-   * @param id    Used to find the object in the store.
-   * @param clazz {@link Class} of the object to create.
+   * @param <T>            Creates an object of this type.
+   * @param searchCriteria A field name to value map
+   * @param clazz          {@link Class} of the object to create/find in the
+   *                       store.
    *
    * @return Either the existing object from the store or a new one.
    */
-  public <T extends TerraformBlock> T createOrRetrieveObject(final String id, final Class<T> clazz) {
-    // TODO search for object with id and return it if present else create new
-    // object
-    final T object = this.store.create(clazz);
-    object.setTerraformId(id);
+  public <T extends TerraformBlock> T createOrRetrieveObject(final Map<TerraformModelField, String> searchCriteria,
+      final Class<T> clazz) {
+    final Label labelAnnotation = clazz.getAnnotation(Label.class);
+    final String label = labelAnnotation.value();
 
-    return object;
-  }
+    final StringBuffer fieldClause = new StringBuffer("{");
+
+    if (!searchCriteria.isEmpty()) {
+      // replace special characters
+      searchCriteria.forEach((field, value) -> fieldClause
+          .append(String.format("%s: '%s',", field.getModelName(), value.replace("\\", "\\\\"))));
+      // remove trailing ','
+      fieldClause.deleteCharAt(fieldClause.length() - 1);
+    }
+
+    fieldClause.append("}");
+
+    final Result<CompositeRowObject> storeResult = this.store
+        .executeQuery(String.format("match (n:Terraform %s) where n:%s return n", fieldClause, label));
+
+    return storeResult.hasResult() ? storeResult.getSingleResult().get("n", clazz) : this.store.create(clazz);
+  };
 }

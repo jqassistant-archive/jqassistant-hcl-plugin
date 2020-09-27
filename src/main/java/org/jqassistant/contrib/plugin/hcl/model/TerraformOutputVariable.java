@@ -13,6 +13,21 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
  */
 @Label("OutputVariable")
 public interface TerraformOutputVariable extends TerraformBlock {
+  enum FieldName implements TerraformModelField {
+    NAME("name");
+
+    private final String modelName;
+
+    private FieldName(final String modelName) {
+      this.modelName = modelName;
+    }
+
+    @Override
+    public String getModelName() {
+      return this.modelName;
+    }
+  }
+
   @Relation("DEPENDS_ON")
   List<TerraformBlock> getDependantObjects();
 

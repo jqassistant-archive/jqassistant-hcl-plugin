@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,11 +17,6 @@ public class TerraformScannerPluginIT extends AbstractPluginIT {
   @BeforeEach
   public void beginTransaction() {
     this.store.beginTransaction();
-  }
-
-  @AfterEach
-  public void rollbackTransaction() {
-    this.store.rollbackTransaction();
   }
 
   @Test
