@@ -1,22 +1,22 @@
 package org.jqassistant.contrib.plugin.hcl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
+import org.jqassistant.contrib.plugin.hcl.test.AbstractTerraformPluginIT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
-import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
-import com.buschmais.xo.api.Query.Result;
-import com.buschmais.xo.api.Query.Result.CompositeRowObject;
 
-public class TerraformScannerPluginModuleIT extends AbstractPluginIT {
+public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
   private static final String FILE_NAME = "/terraform/module/main.tf";
 
   @Test
@@ -44,10 +44,10 @@ public class TerraformScannerPluginModuleIT extends AbstractPluginIT {
     assertThat(actualDependantObjects).hasSize(1).extracting(TerraformBlock::getFullQualifiedName)
         .containsExactlyInAnyOrder("aws_db_instance.main");
 
-    // read all properties which were added and are not part of the model
-    final Result<CompositeRowObject> inputVariables = this.store
-        .executeQuery(String.format("match (n:Terraform) where ID(n) = %s return n", actualModule.getId().toString()));
-    System.out.println(inputVariables);
+    // read all properties as some are not part of the model (input parameters)
+    final Map<String, String> actualProperties = this.readAllProperties(actualModule);
+
+    assertThat(actualProperties).contains(entry("in", "4711"));
   }
 
   @Test

@@ -38,7 +38,7 @@ public interface TerraformModule extends TerraformBlock {
   String getProviders();
 
   @Relation("IS_SOURCED_FROM")
-  TerraformLogicalModule getReference();
+  TerraformLogicalModule getSourcedFrom();
 
   String getSource();
 
@@ -50,7 +50,7 @@ public interface TerraformModule extends TerraformBlock {
 
   void setProviders(String provider);
 
-  void setReference(TerraformLogicalModule logicalModule);
+  void setSourcedFrom(TerraformLogicalModule logicalModule);
 
   void setSource(String source);
 

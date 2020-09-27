@@ -41,9 +41,7 @@ public class Provider extends TerraformObject {
         TerraformProvider.class);
     provider.setName(this.name);
 
-    this.properties.forEach((name, value) -> {
-      storeHelper.addPropertyToObject(provider, name, value);
-    });
+    storeHelper.addPropertiesToObject(provider, this.properties);
 
     return provider;
   }

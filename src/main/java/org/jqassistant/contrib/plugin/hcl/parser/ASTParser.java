@@ -98,7 +98,7 @@ public class ASTParser {
     parsePropertiesRecursivlyFromBlock(setter, moduleContext.getChild(2));
 
     final BiConsumer<String, String> matchInputVariable = (variable, value) -> module.addInputVariableMapping(variable,
-        value);
+        StringHelper.removeQuotes(value));
 
     parseUnknownPropertiesFromBlock(setter.keySet(), matchInputVariable, moduleContext.getChild(2));
 

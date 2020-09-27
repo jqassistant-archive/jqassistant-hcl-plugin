@@ -111,9 +111,9 @@ public class Module extends TerraformObject {
         TerraformLogicalModule.class);
     referencedModule.setFullQualifiedName(fullQualifiedNameOfReferencedModule);
 
-    module.setReference(referencedModule);
+    module.setSourcedFrom(referencedModule);
 
-    storeHelper.addPropertiesToRelationship(module, referencedModule, "CALLS", this.matchedInputVariables);
+    storeHelper.addPropertiesToObject(module, this.matchedInputVariables);
 
     return module;
   }

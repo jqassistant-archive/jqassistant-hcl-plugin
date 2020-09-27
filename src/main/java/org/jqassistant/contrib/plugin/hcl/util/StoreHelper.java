@@ -24,38 +24,17 @@ public class StoreHelper {
   }
 
   /**
-   * Adds properties to the relationship <code>relationshipName</code> from
-   * <code>source</code> to <code>destination</code>.
-   *
-   * @param source           the source node of the relationship
-   * @param destination      the destination node of the relationship
-   * @param relationshipName the name of the relationship
-   * @param properties       the properties to add
-   */
-  public void addPropertiesToRelationship(final TerraformBlock source, final TerraformBlock destination,
-      final String relationshipName, final Map<String, String> properties) {
-    final StringBuffer addFieldClause = new StringBuffer();
-    // replace special characters
-    properties.forEach(
-        (field, value) -> addFieldClause.append(String.format("SET r.%s = '%s'", field, value.replace("\\", "\\\\"))));
-    System.out.println(String.format("match (s:Block)-[r:%s]-(d:Block) where ID(s) = %s and ID(d) = %s %s return r",
-        relationshipName, source.getId().toString(), destination.getId().toString(), addFieldClause));
-    this.store
-        .executeQuery(String.format("match (s:Block)-[r:%s]-(d:Block) where ID(s) = %s and ID(d) = %s %s return r",
-            relationshipName, source.getId().toString(), destination.getId().toString(), addFieldClause));
-  }
-
-  /**
    * Add the property <code>name</code> with <code>value</code> to the
    * <code>object</code>.
    *
-   * @param object to add the name/value to
-   * @param name   property name
-   * @param value  property value
+   * @param object     to add the name/value to
+   * @param properties The properties to add
    */
-  public void addPropertyToObject(final TerraformBlock object, final String name, final String value) {
-    this.store.executeQuery(String.format("match (s:Terraform) where ID(s) =  %s set s.%s = '%s' return s.id",
-        object.getId().toString(), name, value));
+  public void addPropertiesToObject(final TerraformBlock object, final Map<String, String> properties) {
+    properties.forEach((name, value) -> {
+      this.store.executeQuery(String.format("match (s:Terraform) where ID(s) =  %s set s.%s = '%s' return s.id",
+          object.getId().toString(), name, value));
+    });
   }
 
   /**
