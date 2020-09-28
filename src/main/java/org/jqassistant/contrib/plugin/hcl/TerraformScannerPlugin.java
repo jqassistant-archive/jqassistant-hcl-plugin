@@ -109,6 +109,13 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
         currentLogicalModule.getProviders().add(provider);
       });
 
+      ast.block().forEach(cloudResourceContext -> {
+        final TerraformCloudResource cloudResource = astParser.extractCloudResource(cloudResourceContext)
+            .toStore(storeHelper);
+
+        currentLogicalModule.getCloudResources().add(cloudResource);
+      });
+
       terraformFileDescriptor.setValid(true);
     } catch (final IOException e) {
       terraformFileDescriptor.setValid(false);
