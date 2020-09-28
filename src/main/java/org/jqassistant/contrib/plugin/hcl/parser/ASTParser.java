@@ -20,6 +20,7 @@ import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.ProviderResource;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
 import com.google.common.base.Preconditions;
@@ -154,6 +155,38 @@ public class ASTParser {
     parseUnknownPropertiesFromBlock(Collections.emptySet(), setProperty, providerContext.getChild(2));
 
     return provider;
+  }
+
+  private String extractProviderNameFromResourceType(final String resourceType) {
+    Preconditions.checkArgument(resourceType.contains("_"), TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final String providerPrefix = resourceType.substring(0, resourceType.indexOf('_'));
+
+    switch (providerPrefix) {
+    case "aws":
+      return providerPrefix;
+    default:
+      throw new IllegalArgumentException(String.format("Unknown provider type: %s", providerPrefix));
+    }
+  }
+
+  public ProviderResource extractProviderResource(final BlockContext providerResourceContext) {
+    Preconditions.checkArgument(providerResourceContext.getChildCount() >= 4, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final ProviderResource providerResource = new ProviderResource();
+    final String resourceType = StringHelper.removeQuotes(providerResourceContext.getChild(1).getText());
+
+    providerResource.setProviderName(extractProviderNameFromResourceType(resourceType));
+    providerResource.setType(resourceType);
+    providerResource.setName(StringHelper.removeQuotes(providerResourceContext.getChild(2).getText()));
+
+    final BiConsumer<String, String> setProperty = (name, value) -> {
+      providerResource.setProperty(StringHelper.removeQuotes(name), StringHelper.removeQuotes(value));
+    };
+
+    parseUnknownPropertiesFromBlock(Collections.emptySet(), setProperty, providerResourceContext.getChild(3));
+
+    return providerResource;
   }
 
   private void parseList(final Consumer<String> setter, final ParseTree listContext, final String blockName) {
