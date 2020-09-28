@@ -49,8 +49,8 @@ public class ProviderResource extends TerraformObject {
    */
   public TerraformProviderResource toStore(final StoreHelper storeHelper) {
     final TerraformProviderResource providerResource = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformDescriptor.FieldName.NAME, this.name), TerraformProviderResource.class);
-    providerResource.setName(this.name);
+        ImmutableMap.of(TerraformDescriptor.FieldName.INTERNAL_NAME, this.name), TerraformProviderResource.class);
+    providerResource.setInternalName(this.name);
     providerResource.setProvider(TerraformProviderResource.Provider.fromString(this.providerName));
     providerResource.setType(this.type);
 

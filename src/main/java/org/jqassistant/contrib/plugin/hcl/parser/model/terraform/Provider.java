@@ -39,7 +39,7 @@ public class Provider extends TerraformObject {
   public TerraformProvider toStore(final StoreHelper storeHelper) {
     final TerraformProvider provider = storeHelper.createOrRetrieveObject(Collections.emptyMap(),
         TerraformProvider.class);
-    provider.setName(this.name);
+    provider.setInternalName(this.name);
 
     storeHelper.addPropertiesToObject(provider, this.properties);
 

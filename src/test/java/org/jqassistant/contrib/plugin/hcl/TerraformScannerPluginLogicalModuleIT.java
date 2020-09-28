@@ -30,7 +30,8 @@ public class TerraformScannerPluginLogicalModuleIT extends AbstractPluginIT {
     assertThat(actualDescriptor.getModule()).isNotNull();
 
     final TerraformLogicalModule actualModule = actualDescriptor.getModule();
-    assertThat(actualModule).extracting(TerraformLogicalModule::getName, TerraformLogicalModule::getFullQualifiedName)
+    assertThat(actualModule)
+        .extracting(TerraformLogicalModule::getInternalName, TerraformLogicalModule::getFullQualifiedName)
         .containsExactly("logical module", "/terraform/logical module");
   }
 

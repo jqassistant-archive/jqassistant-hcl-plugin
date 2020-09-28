@@ -49,7 +49,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
     module.setFullQualifiedName(moduleName);
 
     // identify the ROOT module
-    module.setName(Paths.get(path).getParent().getParent() == null ? "ROOT"
+    module.setInternalName(Paths.get(path).getParent().getParent() == null ? "ROOT"
         : Paths.get(path).getParent().getFileName().toString());
 
     return module;
@@ -76,14 +76,14 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final ASTParser astParser = new ASTParser();
       final StoreHelper storeHelper = new StoreHelper(store);
 
-      terraformFileDescriptor.setName(item.getFile().getName());
+      terraformFileDescriptor.setInternalName(item.getFile().getName());
 
       final TerraformLogicalModule currentLogicalModule = createOrRetrieveModule(path, storeHelper);
       terraformFileDescriptor.setModule(currentLogicalModule);
 
       ast.variable().forEach(inputVariableContext -> {
         final TerraformInputVariable inputVariable = astParser.extractInputVariable(inputVariableContext)
-            .toStore(storeHelper);
+            .toStore(storeHelper, path);
 
         terraformFileDescriptor.getBlocks().add(inputVariable);
         currentLogicalModule.getInputVariables().add(inputVariable);

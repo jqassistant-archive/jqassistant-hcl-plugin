@@ -34,9 +34,10 @@ public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
     assertThat(actualDescriptor.getModule().getCalledModules()).hasSize(3);
 
     final TerraformModule actualModule = actualDescriptor.getModule().getCalledModules().stream()
-        .filter(m -> "local_count".equals(m.getName())).findFirst().get();
+        .filter(m -> "local_count".equals(m.getInternalName())).findFirst().get();
 
-    assertThat(actualModule).extracting(TerraformModule::getCount, TerraformModule::getName, TerraformModule::getSource)
+    assertThat(actualModule)
+        .extracting(TerraformModule::getCount, TerraformModule::getInternalName, TerraformModule::getSource)
         .containsExactly("2", "local_count", "/terraform/module/test_module");
 
     final List<TerraformBlock> actualDependantObjects = actualModule.getDependantResources();
@@ -65,10 +66,10 @@ public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
     assertThat(actualDescriptor.getModule().getCalledModules()).hasSize(3);
 
     final TerraformModule actualModule = actualDescriptor.getModule().getCalledModules().stream()
-        .filter(m -> "local_foreach".equals(m.getName())).findFirst().get();
+        .filter(m -> "local_foreach".equals(m.getInternalName())).findFirst().get();
 
     assertThat(actualModule)
-        .extracting(TerraformModule::getForEach, TerraformModule::getName, TerraformModule::getSource)
+        .extracting(TerraformModule::getForEach, TerraformModule::getInternalName, TerraformModule::getSource)
         .containsExactly("toset([\"assets\",\"media\"])", "local_foreach", "/terraform/module/test_module");
   }
 
@@ -87,10 +88,10 @@ public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
     assertThat(actualDescriptor.getModule().getCalledModules()).hasSize(3);
 
     final TerraformModule actualModule = actualDescriptor.getModule().getCalledModules().stream()
-        .filter(m -> "remote".equals(m.getName())).findFirst().get();
+        .filter(m -> "remote".equals(m.getInternalName())).findFirst().get();
 
     assertThat(actualModule)
-        .extracting(TerraformModule::getVersion, TerraformModule::getName, TerraformModule::getSource)
+        .extracting(TerraformModule::getVersion, TerraformModule::getInternalName, TerraformModule::getSource)
         .containsExactly("0.6.7", "remote", "hashicorp/nomad/aws");
   }
 

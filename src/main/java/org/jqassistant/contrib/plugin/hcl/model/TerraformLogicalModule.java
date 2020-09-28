@@ -34,9 +34,6 @@ public interface TerraformLogicalModule extends TerraformBlock {
   @Relation("DECLARES_INPUT_VARIABLE")
   List<TerraformInputVariable> getInputVariables();
 
-  @Override
-  String getName();
-
   @Relation("DECLARES_OUTPUT_VARIABLE")
   List<TerraformOutputVariable> getOutputVariables();
 

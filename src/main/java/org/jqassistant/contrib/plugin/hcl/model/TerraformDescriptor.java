@@ -13,7 +13,15 @@ import com.buschmais.xo.neo4j.api.annotation.Label;
 @Label("Terraform")
 public interface TerraformDescriptor extends Descriptor {
   enum FieldName implements TerraformModelField {
-    NAME("name");
+    /**
+     * An identical name within the whole project.
+     */
+    FULL_QUALIFIED_NAME("fullQualifiedName"),
+    /**
+     * The terraform name, e.g. name of a resource or variable. This is not the name
+     * property of some resources!
+     */
+    INTERNAL_NAME("internal_name");
 
     private final String modelName;
 
@@ -27,7 +35,11 @@ public interface TerraformDescriptor extends Descriptor {
     }
   }
 
-  String getName();
+  String getFullQualifiedName();
 
-  void setName(String fileName);
+  String getInternalName();
+
+  void setFullQualifiedName(String fullQualifiedName);
+
+  void setInternalName(String name);
 }
