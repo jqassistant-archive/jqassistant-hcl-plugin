@@ -33,9 +33,9 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
           final Map<String, String> actualProperties = readAllProperties(pr);
 
           assertThat(actualProperties).containsOnly(entry("ami", "data.aws_ami.ami.id"),
-              entry("instance_type", "t2.micro"), entry("name", "server"), entry("provider", "AWS"),
+              entry("instance_type", "t2.micro"), entry("provider", "AWS"),
               entry("security_groups", "[aws_security_group.server.name]"), entry("tags", "{Name=\"my server\"}"),
-              entry("type", "aws_instance"));
+              entry("type", "aws_instance"), entry("internalName", "server"), entry("fullQualifiedName", "server"));
         });
   }
 
@@ -50,7 +50,7 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
 
     // then
     assertThat(actualDescriptor.isValid()).isTrue();
-    assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(3);
+    assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(4);
   }
 
   @BeforeEach

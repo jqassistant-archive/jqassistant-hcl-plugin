@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
-import com.buschmais.jqassistant.core.store.api.Store;
 import com.google.common.collect.ImmutableMap;
 
-public class OutputVariable extends TerraformObject {
+public class OutputVariable extends TerraformObject<TerraformOutputVariable> {
   private final List<String> dependentObjects = new ArrayList<String>();
 
   private String description;
@@ -29,6 +29,26 @@ public class OutputVariable extends TerraformObject {
     return this.name;
   }
 
+  @Override
+  protected TerraformOutputVariable saveInternalState(final TerraformOutputVariable object,
+      final TerraformLogicalModule partOfModule, final StoreHelper storeHelper) {
+    object.setDescription(this.description);
+    object.setName(this.name);
+    object.setSensitive(this.sensitive);
+    object.setValue(this.value);
+
+    this.dependentObjects.forEach(dependentObjectName -> {
+      final TerraformBlock block = storeHelper.createOrRetrieveObject(
+          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), partOfModule,
+          TerraformBlock.class);
+      block.setFullQualifiedName(dependentObjectName);
+
+      object.getDependantObjects().add(block);
+    });
+
+    return object;
+  }
+
   public void setDescription(final String description) {
     this.description = description;
   }
@@ -43,32 +63,5 @@ public class OutputVariable extends TerraformObject {
 
   public void setValue(final String value) {
     this.value = value;
-  }
-
-  /**
-   * Converts this object into a {@link TerraformOutputVariable} and puts it into
-   * the store.
-   *
-   * @param storeHelper helper to access the {@link Store}
-   * @return <code>variable</code>
-   */
-  public TerraformOutputVariable toStore(final StoreHelper storeHelper) {
-    final TerraformOutputVariable variable = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformOutputVariable.FieldName.NAME, this.name), TerraformOutputVariable.class);
-
-    variable.setDescription(this.description);
-    variable.setName(this.name);
-    variable.setSensitive(this.sensitive);
-    variable.setValue(this.value);
-
-    this.dependentObjects.forEach(dependentObjectName -> {
-      final TerraformBlock block = storeHelper.createOrRetrieveObject(
-          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), TerraformBlock.class);
-      block.setFullQualifiedName(dependentObjectName);
-
-      variable.getDependantObjects().add(block);
-    });
-
-    return variable;
   }
 }

@@ -3,6 +3,7 @@ package org.jqassistant.contrib.plugin.hcl.util;
 import java.util.Map;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModelField;
 
 import com.buschmais.jqassistant.core.store.api.Store;
@@ -50,6 +51,23 @@ public class StoreHelper {
    */
   public <T extends TerraformBlock> T createOrRetrieveObject(final Map<TerraformModelField, String> searchCriteria,
       final Class<T> clazz) {
+    return createOrRetrieveObject(searchCriteria, null, clazz);
+  };
+
+  /**
+   * Retrieves the object with <code>id</code> from the store or creates a new
+   * object if it does not exist.
+   *
+   * @param <T>            Creates an object of this type.
+   * @param searchCriteria A field name to value map
+   * @param partOfModule   the existing object must belong to this module
+   * @param clazz          {@link Class} of the object to create/find in the
+   *                       store.
+   *
+   * @return Either the existing object from the store or a new one.
+   */
+  public <T extends TerraformBlock> T createOrRetrieveObject(final Map<TerraformModelField, String> searchCriteria,
+      final TerraformLogicalModule partOfModule, final Class<T> clazz) {
     final Label labelAnnotation = clazz.getAnnotation(Label.class);
     final String label = labelAnnotation.value();
 
@@ -65,9 +83,18 @@ public class StoreHelper {
 
     fieldClause.append("}");
 
-    final Result<CompositeRowObject> storeResult = this.store
-        .executeQuery(String.format("match (n:Terraform %s) where n:%s return n", fieldClause, label));
+    Result<CompositeRowObject> storeResult;
+
+    if (partOfModule == null) {
+      storeResult = this.store
+          .executeQuery(String.format("match (n:Terraform %s) where n:%s return n", fieldClause, label));
+    } else {
+      storeResult = this.store
+          .executeQuery(String.format("match (n:Terraform %s)-[*]-(m:LogicalModule {%s: '%s'}) where n:%s return n",
+              fieldClause, TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME.getModelName(),
+              partOfModule.getFullQualifiedName(), label));
+    }
 
     return storeResult.hasResult() ? storeResult.getSingleResult().get("n", clazz) : this.store.create(clazz);
-  };
+  }
 }

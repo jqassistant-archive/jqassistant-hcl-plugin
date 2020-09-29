@@ -3,19 +3,32 @@ package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformProviderResource;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
-import com.buschmais.jqassistant.core.store.api.Store;
-import com.google.common.collect.ImmutableMap;
-
-public class ProviderResource extends TerraformObject {
+public class ProviderResource extends TerraformObject<TerraformProviderResource> {
   private String name;
   private final Map<String, String> properties = new HashMap<>();
 
   private String providerName;
   private String type;
+
+  public String getName() {
+    return this.name;
+  }
+
+  @Override
+  protected TerraformProviderResource saveInternalState(final TerraformProviderResource object,
+      final TerraformLogicalModule partOfModule, final StoreHelper storeHelper) {
+    object.setInternalName(this.name);
+    object.setProvider(TerraformProviderResource.Provider.fromString(this.providerName));
+    object.setType(this.type);
+
+    storeHelper.addPropertiesToObject(object, this.properties);
+
+    return object;
+  }
 
   public void setName(final String name) {
     this.name = name;
@@ -37,25 +50,5 @@ public class ProviderResource extends TerraformObject {
 
   public void setType(final String type) {
     this.type = type;
-  }
-
-  /**
-   * Converts this object into a {@link TerraformProviderResource} and puts it
-   * into the store.
-   *
-   * @param storeHelper helper to access the {@link Store}
-   *
-   * @return the created {@link TerraformProviderResource}
-   */
-  public TerraformProviderResource toStore(final StoreHelper storeHelper) {
-    final TerraformProviderResource providerResource = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformDescriptor.FieldName.INTERNAL_NAME, this.name), TerraformProviderResource.class);
-    providerResource.setInternalName(this.name);
-    providerResource.setProvider(TerraformProviderResource.Provider.fromString(this.providerName));
-    providerResource.setType(this.type);
-
-    storeHelper.addPropertiesToObject(providerResource, this.properties);
-
-    return providerResource;
   }
 }

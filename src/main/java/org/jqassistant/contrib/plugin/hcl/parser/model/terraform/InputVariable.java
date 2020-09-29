@@ -1,16 +1,10 @@
 package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
-import java.io.File;
-import java.nio.file.Paths;
-
-import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
-import com.buschmais.jqassistant.core.store.api.Store;
-import com.google.common.collect.ImmutableMap;
-
-public class InputVariable extends TerraformObject {
+public class InputVariable extends TerraformObject<TerraformInputVariable> {
   private String defaultValue;
   private String description;
   private String internalName;
@@ -20,6 +14,19 @@ public class InputVariable extends TerraformObject {
 
   public String getInternalName() {
     return this.internalName;
+  }
+
+  @Override
+  protected TerraformInputVariable saveInternalState(final TerraformInputVariable object,
+      final TerraformLogicalModule partOfModule, final StoreHelper storeHelper) {
+    object.setDefault(this.defaultValue);
+    object.setDescription(this.description);
+    object.setInternalName(this.internalName);
+    object.setType(this.type);
+    object.setValidationErrorMessage(this.validationErrorMessage);
+    object.setValidationRule(this.validationRule);
+
+    return object;
   }
 
   public void setDefaultValue(final String defaultValue) {
@@ -44,28 +51,5 @@ public class InputVariable extends TerraformObject {
 
   public void setValidationRule(final String validationRule) {
     this.validationRule = validationRule;
-  }
-
-  /**
-   * Converts this object into a {@link TerraformInputVariable}.
-   *
-   * @param storeHelper helper to access the {@link Store}
-   * @return <code>variable</code>
-   */
-  public TerraformInputVariable toStore(final StoreHelper storeHelper, final String fileNameWithPath) {
-    final TerraformInputVariable variable = storeHelper
-        .createOrRetrieveObject(ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME,
-            Paths.get(fileNameWithPath).normalize().toString().replace(File.separatorChar, '.') + ".var."
-                + this.internalName),
-            TerraformInputVariable.class);
-
-    variable.setDefault(this.defaultValue);
-    variable.setDescription(this.description);
-    variable.setInternalName(this.internalName);
-    variable.setType(this.type);
-    variable.setValidationErrorMessage(this.validationErrorMessage);
-    variable.setValidationRule(this.validationRule);
-
-    return variable;
   }
 }

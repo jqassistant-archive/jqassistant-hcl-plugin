@@ -25,8 +25,9 @@ public class TerraformScannerPluginProviderIT extends AbstractTerraformPluginIT 
 
     // then
     assertThat(actualDescriptor.isValid()).isTrue();
-    assertThat(readAllProperties(actualDescriptor.getModule().getProviders().get(0)))
-        .containsExactly(entry("name", "google"), entry("project", "acme-app"), entry("region", "us-central1"));
+    assertThat(readAllProperties(actualDescriptor.getModule().getProviders().get(0))).containsOnly(
+        entry("fullQualifiedName", "google"), entry("internalName", "google"), entry("project", "acme-app"),
+        entry("region", "us-central1"));
   }
 
   @BeforeEach
