@@ -18,7 +18,7 @@ module "remote" {
   version = "0.6.7"
 }
    
-resource "aws_db_instance" "main" {
+resource "aws_db_instance" "main1" {
   instance_class = "t3.medium"
 }
 

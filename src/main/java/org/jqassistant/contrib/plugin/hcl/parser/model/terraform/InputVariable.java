@@ -1,21 +1,46 @@
 package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
+import java.nio.file.Path;
+
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
-import com.buschmais.jqassistant.core.store.api.Store;
-import com.google.common.collect.ImmutableMap;
+public class InputVariable extends TerraformObject<TerraformInputVariable> {
+  /**
+   * Calculates the full qualified name for an input variable.
+   *
+   * @param parentFilePath the path name of the file this module is defined in
+   * @param variableName   the name of the module
+   * @return A name which can be used as ID
+   */
+  public static String calculateFullQualifiedName(final String variableName, final Path parentFilePath) {
+    return getFullQualifiedNamePrefix(parentFilePath) + "var." + variableName;
+  }
 
-public class InputVariable extends TerraformObject {
   private String defaultValue;
   private String description;
-  private String name;
+  private String internalName;
   private String type;
   private String validationErrorMessage;
+
   private String validationRule;
 
-  public String getName() {
-    return this.name;
+  public String getInternalName() {
+    return this.internalName;
+  }
+
+  @Override
+  protected TerraformInputVariable saveInternalState(final TerraformInputVariable object,
+      final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
+    object.setDefault(this.defaultValue);
+    object.setDescription(this.description);
+    object.setInternalName(this.internalName);
+    object.setType(this.type);
+    object.setValidationErrorMessage(this.validationErrorMessage);
+    object.setValidationRule(this.validationRule);
+
+    return object;
   }
 
   public void setDefaultValue(final String defaultValue) {
@@ -26,8 +51,8 @@ public class InputVariable extends TerraformObject {
     this.description = description;
   }
 
-  public void setName(final String name) {
-    this.name = name;
+  public void setInternalName(final String internalName) {
+    this.internalName = internalName;
   }
 
   public void setType(final String type) {
@@ -40,25 +65,5 @@ public class InputVariable extends TerraformObject {
 
   public void setValidationRule(final String validationRule) {
     this.validationRule = validationRule;
-  }
-
-  /**
-   * Converts this object into a {@link TerraformInputVariable}.
-   *
-   * @param storeHelper helper to access the {@link Store}
-   * @return <code>variable</code>
-   */
-  public TerraformInputVariable toStore(final StoreHelper storeHelper) {
-    final TerraformInputVariable variable = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformInputVariable.FieldName.NAME, this.name), TerraformInputVariable.class);
-
-    variable.setDefault(this.defaultValue);
-    variable.setDescription(this.description);
-    variable.setName(this.name);
-    variable.setType(this.type);
-    variable.setValidationErrorMessage(this.validationErrorMessage);
-    variable.setValidationRule(this.validationRule);
-
-    return variable;
   }
 }

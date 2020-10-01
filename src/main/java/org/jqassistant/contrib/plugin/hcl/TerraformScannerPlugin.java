@@ -1,6 +1,7 @@
 package org.jqassistant.contrib.plugin.hcl;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.antlr.v4.runtime.CharStreams;
@@ -16,6 +17,12 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformProvider;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformProviderResource;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.LogicalModule;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.ProviderResource;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +35,6 @@ import com.buschmais.jqassistant.core.store.api.Store;
 import com.buschmais.jqassistant.plugin.common.api.model.FileDescriptor;
 import com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin;
 import com.buschmais.jqassistant.plugin.common.api.scanner.filesystem.FileResource;
-import com.google.common.collect.ImmutableMap;
 
 @ScannerPlugin.Requires(FileDescriptor.class)
 public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, TerraformFileDescriptor> {
@@ -37,22 +43,6 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
   @Override
   public boolean accepts(final FileResource item, final String path, final Scope scope) throws IOException {
     return path.toLowerCase().endsWith(".tf");
-  }
-
-  private TerraformLogicalModule createOrRetrieveModule(final String path, final StoreHelper storeHelper) {
-    final String moduleName = Paths.get(path).getParent().normalize().toString().replace('\\', '/');
-
-    final TerraformLogicalModule module = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME, moduleName),
-        TerraformLogicalModule.class);
-
-    module.setFullQualifiedName(moduleName);
-
-    // identify the ROOT module
-    module.setName(Paths.get(path).getParent().getParent() == null ? "ROOT"
-        : Paths.get(path).getParent().getFileName().toString());
-
-    return module;
   }
 
   @Override
@@ -65,8 +55,9 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
     final FileDescriptor fileDescriptor = context.getCurrentDescriptor();
     final TerraformFileDescriptor terraformFileDescriptor = store.addDescriptorType(fileDescriptor,
         TerraformFileDescriptor.class);
-
     try {
+      logger.trace("File: {}", item.getFile().getAbsolutePath());
+
       final terraformLexer lexer = new terraformLexer(CharStreams.fromStream(item.createStream()));
       final CommonTokenStream tokens = new CommonTokenStream(lexer);
       final terraformParser parser = new terraformParser(tokens);
@@ -76,45 +67,69 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final ASTParser astParser = new ASTParser();
       final StoreHelper storeHelper = new StoreHelper(store);
 
-      terraformFileDescriptor.setName(item.getFile().getName());
+      terraformFileDescriptor.setInternalName(item.getFile().getName());
 
-      final TerraformLogicalModule currentLogicalModule = createOrRetrieveModule(path, storeHelper);
+      final Path moduleDirectory = Paths.get(path).getParent();
+      final String logicalModuleName = moduleDirectory.getName(moduleDirectory.getNameCount() - 1).toString();
+
+      // as this object does not exist in terraform, it can't be extracted from the
+      // AST
+      final TerraformLogicalModule currentLogicalModule = new LogicalModule(logicalModuleName).toStore(storeHelper,
+          LogicalModule.calculateFullQualifiedName(Paths.get(path).getParent()), Paths.get(path), null,
+          TerraformLogicalModule.class);
+
       terraformFileDescriptor.setModule(currentLogicalModule);
 
       ast.variable().forEach(inputVariableContext -> {
-        final TerraformInputVariable inputVariable = astParser.extractInputVariable(inputVariableContext)
-            .toStore(storeHelper);
+        final InputVariable inputVariable = astParser.extractInputVariable(inputVariableContext);
 
-        terraformFileDescriptor.getBlocks().add(inputVariable);
-        currentLogicalModule.getInputVariables().add(inputVariable);
+        final TerraformInputVariable terraformInputVariable = inputVariable.toStore(storeHelper,
+            InputVariable.calculateFullQualifiedName(inputVariable.getInternalName(), Paths.get(path)),
+            Paths.get(path).getParent(), currentLogicalModule, TerraformInputVariable.class);
+
+        terraformFileDescriptor.getBlocks().add(terraformInputVariable);
+        currentLogicalModule.getInputVariables().add(terraformInputVariable);
       });
 
       ast.output().forEach(outputVariableContext -> {
-        final TerraformOutputVariable outputVariable = astParser.extractOutputVariable(outputVariableContext)
-            .toStore(storeHelper);
+        final OutputVariable outputVariable = astParser.extractOutputVariable(outputVariableContext);
 
-        terraformFileDescriptor.getBlocks().add(outputVariable);
-        currentLogicalModule.getOutputVariables().add(outputVariable);
+        final TerraformOutputVariable terraFormOutputVariable = outputVariable.toStore(storeHelper,
+            OutputVariable.calculateFullQualifiedName(outputVariable.getName(), Paths.get(path)),
+            Paths.get(path).getParent(), currentLogicalModule, TerraformOutputVariable.class);
+
+        terraformFileDescriptor.getBlocks().add(terraFormOutputVariable);
+        currentLogicalModule.getOutputVariables().add(terraFormOutputVariable);
       });
 
       ast.module().forEach(moduleContext -> {
-        final TerraformModule module = astParser.extractModuleCall(moduleContext).toStore(Paths.get(path).getParent(),
-            storeHelper);
+        final Module moduleCall = astParser.extractModuleCall(moduleContext);
 
-        currentLogicalModule.getCalledModules().add(module);
+        final TerraformModule terraFormModule = moduleCall.toStore(storeHelper,
+            Module.calculateFullQualifiedName(moduleCall.getSource(), moduleCall.getName(), Paths.get(path)),
+            Paths.get(path).getParent(), currentLogicalModule, TerraformModule.class);
+
+        currentLogicalModule.getCalledModules().add(terraFormModule);
       });
 
       ast.provider().forEach(providerContext -> {
-        final TerraformProvider provider = astParser.extractProvider(providerContext).toStore(storeHelper);
+        final Provider provider = astParser.extractProvider(providerContext);
 
-        currentLogicalModule.getProviders().add(provider);
+        final TerraformProvider terraformProvider = provider.toStore(storeHelper,
+            Provider.calculateFullQualifiedName(provider.getName(), Paths.get(path)), Paths.get(path).getParent(),
+            currentLogicalModule, TerraformProvider.class);
+
+        currentLogicalModule.getProviders().add(terraformProvider);
       });
 
       ast.block().forEach(cloudResourceContext -> {
-        final TerraformProviderResource cloudResource = astParser.extractProviderResource(cloudResourceContext)
-            .toStore(storeHelper);
+        final ProviderResource providerResource = astParser.extractProviderResource(cloudResourceContext);
+        final TerraformProviderResource terraformProviderResource = providerResource.toStore(
+            storeHelper, ProviderResource.calculateFullQualifiedName(providerResource.getName(),
+                providerResource.getType(), Paths.get(path)),
+            Paths.get(path).getParent(), currentLogicalModule, TerraformProviderResource.class);
 
-        currentLogicalModule.getProviderResources().add(cloudResource);
+        currentLogicalModule.getProviderResources().add(terraformProviderResource);
       });
 
       terraformFileDescriptor.setValid(true);
