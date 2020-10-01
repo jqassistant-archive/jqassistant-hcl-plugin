@@ -15,6 +15,7 @@ import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 
 public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformPluginIT {
   private static final String FILE_TF = "/terraform/provider resource/main.tf";
+  private static final String FILE1_TF = "/terraform/provider resource/different_providers.tf";
 
   @Test
   public void shouldReadAllAttributePerResource_whenScan_givenProviderResource() {
@@ -33,7 +34,7 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
           final Map<String, String> actualProperties = readAllProperties(pr);
 
           assertThat(actualProperties).containsOnly(entry("ami", "data.aws_ami.ami.id"),
-              entry("instance_type", "t2.micro"), entry("provider", "AWS"),
+              entry("instance_type", "t2.micro"), entry("provider", "aws"),
               entry("security_groups", "[aws_security_group.server.name]"), entry("tags", "{Name=\"my server\"}"),
               entry("type", "aws_instance"), entry("internalName", "server"),
               entry("fullQualifiedName", ".terraform.aws_instance.server"));
@@ -52,6 +53,20 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
     // then
     assertThat(actualDescriptor.isValid()).isTrue();
     assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(4);
+  }
+
+  @Test
+  public void shouldReadAllResources_whenScan_givenResourcesFromDifferentProviders() {
+    // given
+    final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginProviderResourceIT.class),
+        FILE1_TF);
+
+    // when
+    final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE1_TF, DefaultScope.NONE);
+
+    // then
+    assertThat(actualDescriptor.isValid()).isTrue();
+    assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(3);
   }
 
   @BeforeEach
