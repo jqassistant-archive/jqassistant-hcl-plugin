@@ -160,14 +160,7 @@ public class ASTParser {
   private String extractProviderNameFromResourceType(final String resourceType) {
     Preconditions.checkArgument(resourceType.contains("_"), TERRAFORM_FILE_INVALID_MESSAGE);
 
-    final String providerPrefix = resourceType.substring(0, resourceType.indexOf('_'));
-
-    switch (providerPrefix) {
-    case "aws":
-      return providerPrefix;
-    default:
-      throw new IllegalArgumentException(String.format("Unknown provider type: %s", providerPrefix));
-    }
+    return resourceType.substring(0, resourceType.indexOf('_'));
   }
 
   public ProviderResource extractProviderResource(final BlockContext providerResourceContext) {
