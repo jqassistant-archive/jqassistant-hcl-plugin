@@ -37,10 +37,10 @@ public interface TerraformModule extends TerraformBlock {
 
   String getProviders();
 
+  String getSource();
+
   @Relation("IS_SOURCED_FROM")
   TerraformLogicalModule getSourcedFrom();
-
-  String getSource();
 
   String getVersion();
 
@@ -50,9 +50,9 @@ public interface TerraformModule extends TerraformBlock {
 
   void setProviders(String provider);
 
-  void setSourcedFrom(TerraformLogicalModule logicalModule);
-
   void setSource(String source);
+
+  void setSourcedFrom(TerraformLogicalModule logicalModule);
 
   void setVersion(String version);
 }

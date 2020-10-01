@@ -1,12 +1,13 @@
 package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
@@ -14,6 +15,19 @@ import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import com.google.common.collect.ImmutableMap;
 
 public class Module extends TerraformObject<TerraformModule> {
+  /**
+   * Calculates the full qualified name for a module.
+   *
+   * @param parentFilePath the path name of the file this module is defined in
+   * @param sourcePath     path where the source code of the module is located
+   * @param moduleName     the name of the module
+   * @return A name which can be used as ID
+   */
+  public static String calculateFullQualifiedName(final String sourcePath, final String moduleName,
+      final Path parentFilePath) {
+    return getFullQualifiedNamePrefix(parentFilePath) + moduleName;
+  }
+
   private String count;
   private final List<String> dependantResources = new ArrayList<>();
   private String forEach;
@@ -21,6 +35,7 @@ public class Module extends TerraformObject<TerraformModule> {
   private String name;
   private String providers;
   private String source;
+
   private String version;
 
   public void addDependantResource(final String dependantResource) {
@@ -41,9 +56,10 @@ public class Module extends TerraformObject<TerraformModule> {
 
   @Override
   protected TerraformModule saveInternalState(final TerraformModule object, final TerraformLogicalModule partOfModule,
-      final StoreHelper storeHelper) {
+      final Path filePath, final StoreHelper storeHelper) {
     final boolean isOnLocalFileSystem = this.source.startsWith("./") || this.source.startsWith("../");
-    final String moduleSource = isOnLocalFileSystem ? Paths.get(this.source).normalize().toString().replace('\\', '/')
+    final String moduleSource = isOnLocalFileSystem
+        ? filePath.resolve(this.source).normalize().toString().replace('\\', '/')
         : this.source;
 
     object.setCount(this.count);
@@ -63,12 +79,12 @@ public class Module extends TerraformObject<TerraformModule> {
     });
 
     final String fullQualifiedNameOfReferencedModule = isOnLocalFileSystem
-        ? Paths.get(moduleSource).normalize().toString().replace('\\', '/')
+        ? LogicalModule.calculateFullQualifiedName(filePath)
         : this.source;
 
     final TerraformLogicalModule referencedModule = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule),
-        partOfModule, TerraformLogicalModule.class);
+        ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule), null,
+        TerraformLogicalModule.class);
     referencedModule.setFullQualifiedName(fullQualifiedNameOfReferencedModule);
 
     object.setSourcedFrom(referencedModule);

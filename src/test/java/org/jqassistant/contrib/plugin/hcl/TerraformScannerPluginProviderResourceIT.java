@@ -35,7 +35,8 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
           assertThat(actualProperties).containsOnly(entry("ami", "data.aws_ami.ami.id"),
               entry("instance_type", "t2.micro"), entry("provider", "AWS"),
               entry("security_groups", "[aws_security_group.server.name]"), entry("tags", "{Name=\"my server\"}"),
-              entry("type", "aws_instance"), entry("internalName", "server"), entry("fullQualifiedName", "server"));
+              entry("type", "aws_instance"), entry("internalName", "server"),
+              entry("fullQualifiedName", ".terraform.aws_instance.server"));
         });
   }
 
