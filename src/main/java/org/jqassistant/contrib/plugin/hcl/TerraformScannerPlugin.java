@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformLexer;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.FileContext;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformConfiguration;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
@@ -23,6 +24,7 @@ import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.ProviderResource;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Configuration;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +124,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
         currentLogicalModule.getProviders().add(terraformProvider);
       });
 
-      ast.block().forEach(cloudResourceContext -> {
+      ast.resource().forEach(cloudResourceContext -> {
         final ProviderResource providerResource = astParser.extractProviderResource(cloudResourceContext);
         final TerraformProviderResource terraformProviderResource = providerResource.toStore(
             storeHelper, ProviderResource.calculateFullQualifiedName(providerResource.getName(),
@@ -130,6 +132,15 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
             Paths.get(path).getParent(), currentLogicalModule, TerraformProviderResource.class);
 
         currentLogicalModule.getProviderResources().add(terraformProviderResource);
+      });
+
+      ast.terraform().forEach(terraformContext -> {
+        final Configuration configuration = astParser.extractConfiguration(terraformContext);
+        final TerraformConfiguration terraformConfiguration = configuration.toStore(storeHelper,
+            Configuration.calculateFullQualifiedName(Paths.get(path)), Paths.get(path).getParent(), currentLogicalModule,
+            TerraformConfiguration.class);
+
+        currentLogicalModule.getConfiguration().add(terraformConfiguration);
       });
 
       terraformFileDescriptor.setValid(true);

@@ -6,6 +6,7 @@
 	<description>Provides a scanner for HashiCorp HCL</description>
 	<model>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformBlock</class>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformConfiguration</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable</class>
