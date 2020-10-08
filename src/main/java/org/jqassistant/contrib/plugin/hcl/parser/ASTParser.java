@@ -14,8 +14,11 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ModuleContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ProviderContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ResourceContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.TerraformContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContext;
 import org.jqassistant.contrib.plugin.hcl.parser.PropertyParseInstruction.ResultType;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Configuration;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
@@ -35,6 +38,29 @@ import com.google.common.collect.ImmutableMap;
  */
 public class ASTParser {
   private static final String TERRAFORM_FILE_INVALID_MESSAGE = "Terraform file is invalid. Please run 'terraform validate'.";
+
+  public Configuration extractConfiguration(final TerraformContext terraformContext) {
+    Preconditions.checkArgument(terraformContext.getChildCount() >= 2, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final Configuration terraform = new Configuration();
+
+    final Consumer<String> setBackend = s -> terraform.setBackend(StringHelper.removeQuotes(s));
+    final Consumer<String> setExperiments = s -> terraform.setExperiments(StringHelper.removeQuotes(s));
+    final Consumer<String> setProviderMeta = s -> terraform.setProviderMeta(StringHelper.removeQuotes(s));
+    final Consumer<String> setRequiredProviders = s -> terraform.setRequiredProviders(StringHelper.removeQuotes(s));
+    final Consumer<String> setRequiredVersion = s -> terraform.setRequiredVersion(StringHelper.removeQuotes(s));
+
+    final Map<String, PropertyParseInstruction> setter = ImmutableMap.of("backend",
+        new PropertyParseInstruction(ResultType.BLOCK, setBackend), "experiments",
+        new PropertyParseInstruction(ResultType.STRING, setExperiments), "provider_meta",
+        new PropertyParseInstruction(ResultType.BLOCK, setProviderMeta), "required_providers",
+        new PropertyParseInstruction(ResultType.BLOCK, setRequiredProviders), "required_version",
+        new PropertyParseInstruction(ResultType.STRING, setRequiredVersion));
+
+    parsePropertiesRecursivlyFromBlock(setter, terraformContext.getChild(1));
+
+    return terraform;
+  }
 
   /**
    * Extracts the properties of an input variable.
@@ -163,7 +189,7 @@ public class ASTParser {
     return resourceType.substring(0, resourceType.indexOf('_'));
   }
 
-  public ProviderResource extractProviderResource(final BlockContext providerResourceContext) {
+  public ProviderResource extractProviderResource(final ResourceContext providerResourceContext) {
     Preconditions.checkArgument(providerResourceContext.getChildCount() >= 4, TERRAFORM_FILE_INVALID_MESSAGE);
 
     final ProviderResource providerResource = new ProviderResource();
@@ -254,8 +280,19 @@ public class ASTParser {
         Preconditions.checkArgument(property.getChildCount() >= 2, TERRAFORM_FILE_INVALID_MESSAGE);
         Preconditions.checkArgument(property.getChild(0).getChildCount() >= 1, TERRAFORM_FILE_INVALID_MESSAGE);
 
-        parsePropertiesRecursivlyFromBlock(propertySetter, property.getChild(1),
-            blockName + property.getChild(0).getChild(0).getText() + ".");
+        final PropertyParseInstruction propertyInstruction = propertySetter
+            .getOrDefault(blockName + property.getChild(0).getText(), PropertyParseInstruction.IGNORE);
+
+        switch (propertyInstruction.getResultType()) {
+        case BLOCK:
+          propertyInstruction.setValue(property.getChild(property.getChildCount() - 1).getText());
+          break;
+
+        default:
+          parsePropertiesRecursivlyFromBlock(propertySetter, property.getChild(1),
+              blockName + property.getChild(0).getChild(0).getText() + ".");
+
+        }
       }
     }
   }

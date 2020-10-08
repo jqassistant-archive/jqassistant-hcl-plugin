@@ -10,7 +10,12 @@ import java.util.function.Consumer;
  */
 public class PropertyParseInstruction {
   enum ResultType {
-    LIST, STRING
+    /** fetch the whole block with all nested structures */
+    BLOCK,
+    /** fetch a property as list */
+    LIST,
+    /** fetch a property as string */
+    STRING
   }
 
   private static final Consumer<String> DO_NOTHING = s -> {

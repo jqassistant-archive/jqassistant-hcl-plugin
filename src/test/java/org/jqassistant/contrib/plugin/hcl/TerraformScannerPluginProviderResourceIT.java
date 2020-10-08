@@ -52,7 +52,7 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
 
     // then
     assertThat(actualDescriptor.isValid()).isTrue();
-    assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(4);
+    assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(3);
   }
 
   @Test
@@ -66,7 +66,7 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
 
     // then
     assertThat(actualDescriptor.isValid()).isTrue();
-    assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(3);
+    assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(2);
   }
 
   @BeforeEach
