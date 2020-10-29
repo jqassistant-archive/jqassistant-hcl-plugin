@@ -8,6 +8,6 @@ import com.buschmais.xo.neo4j.api.annotation.Label;
  * @author Matthias Kay
  * @since 1.0
  */
-@Label("DataResource")
-public interface TerraformDataResource extends TerraformProviderResource {
+@Label("ProviderDataResource")
+public interface TerraformProviderDataResource extends TerraformProviderResource {
 }

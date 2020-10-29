@@ -128,3 +128,15 @@ from the Terraform configuration language, e.g. `region` for the `provider "aws"
 See https://www.terraform.io/docs/configuration/providers.html[Provider Configuration].
 
 === :Terraform:ProviderResource
+Represents an object managed by Terraform and modified by a provider. Check the provider
+documentation for details, e.g. https://registry.terraform.io/providers/hashicorp/aws/latest/docs[for AWS].
+
+.Properties of :Terraform:ProviderResource
+[options="header"]
+|====
+| Name     | Description
+| provider | The purpose of the variable.
+| type     | The resource type, e.g. `aws_db_instance`.
+|====
+
+All properties of the provider resource are added as properties.
