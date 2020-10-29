@@ -21,4 +21,7 @@
 	<scanner>
 		<class>org.jqassistant.contrib.plugin.hcl.TerraformScannerPlugin</class>
 	</scanner>
+	<rules>
+		<resource>root-module.xml</resource>
+	</rules>
 </jqassistant-plugin>
