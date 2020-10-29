@@ -77,6 +77,30 @@ directory structure on the file system.
 | DECLARES_OUTPUT_VARIABLE  | <<:Terraform:OutputVariable>>   | 1..n        | References the output variables of the module.
 |====
 
+=== :Terraform:Module
+Represents the `module` instruction to include (call) other Terraform modules. See https://www.terraform.io/docs/configuration/modules.html.
+
+.Properties of :Terraform:Module
+[options="header"]
+|====
+| Name      | Description
+| count     | Used to include the module multiple times. Usually a number.
+| forEach   | Can be used instead of `count` to iterate over a set.
+| providers | An explicit provider definition exclusively for this module. 
+| source    | The location of the included module, e.g. reference to a git repository or local directory.
+| version   | The version of the module which is accepted.    
+|====
+
+All input variables of the called module are added as properties.
+
+.Relations of :Terraform:Module
+[options="header"]
+|====
+| Name            | Target label(s)              | Cardinality | Description
+| DEPENDS_ON      | <<:Terraform:Block>>         | 1..n        | The list of explicitly named dependencies from the `depends_on`property.
+| IS_SOURCED_FROM | <<:Terraform:LogicalModule>> | n..1        | References the called module.
+|====
+
 === :Terraform:OutputVariable
 Represents an output variable of a <<:Terraform:LogicalModule>>. For details check https://www.terraform.io/docs/configuration/outputs.html.
 
@@ -95,7 +119,7 @@ Represents an output variable of a <<:Terraform:LogicalModule>>. For details che
 [options="header"]
 |====
 | Name       | Target label(s)      | Cardinality | Description
-| DEPENDS_ON | <<:Terraform:Block>> | 1..n        | References the Terraform objects the value is comprised of.
+| DEPENDS_ON | <<:Terraform:Block>> | 1..n        | The list of explicitly named dependencies from the `depends_on`property.
 |====
 
 === :Terraform:Provider
