@@ -54,6 +54,7 @@ Represents an input variable of a <<:Terraform:LogicalModule>>. For details chec
 | Name                   | Description
 | default                | The default value of the variable if any.
 | description            | The purpose of the variable. 
+| name                   | The name of the variable.
 | type                   | A type constraint to limit the valid values, e.g. `string` or `number`.
 | validationErrorMessage | The validation error message from the included `validation` block.
 | validationRule         | The validation rule from the included `validation` block.
@@ -77,6 +78,25 @@ directory structure on the file system.
 |====
 
 === :Terraform:OutputVariable
+Represents an output variable of a <<:Terraform:LogicalModule>>. For details check https://www.terraform.io/docs/configuration/outputs.html.
+
+.Properties of :Terraform:OutputVariable
+[options="header"]
+|====
+| Name        | Description
+| description | The purpose of the variable.
+| name        | The name of the variable.
+| sensitive   | If the value will be shown in the terraform output or not 
+| type        | Indicates the type of the variable, e.g. `string` or `number`.
+| value       | References the attribute of a <<:Terraform:ProviderResource>> which is returned. Might also contain function calls and multiple resource references.    
+|====
+
+.Relations of :Terraform:OutputVariable
+[options="header"]
+|====
+| Name       | Target label(s)      | Cardinality | Description
+| DEPENDS_ON | <<:Terraform:Block>> | 1..n        | References the Terraform objects the value is comprised of.
+|====
 
 === :Terraform:Provider
 A provider which is used to modify the managed Terraform objects. It inherits all properties

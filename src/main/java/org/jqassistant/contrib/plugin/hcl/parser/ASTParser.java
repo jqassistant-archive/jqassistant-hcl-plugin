@@ -73,7 +73,7 @@ public class ASTParser {
     Preconditions.checkArgument(inputVariableContext.getChildCount() >= 3, TERRAFORM_FILE_INVALID_MESSAGE);
 
     final InputVariable inputVariable = new InputVariable();
-    inputVariable.setInternalName(StringHelper.removeQuotes(inputVariableContext.getChild(1).getText()));
+    inputVariable.setName(StringHelper.removeQuotes(inputVariableContext.getChild(1).getText()));
 
     final Consumer<String> setDefault = s -> inputVariable.setDefaultValue(StringHelper.removeQuotes(s));
     final Consumer<String> setDescription = s -> inputVariable.setDescription(StringHelper.removeQuotes(s));
