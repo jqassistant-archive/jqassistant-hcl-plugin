@@ -68,13 +68,14 @@ directory structure on the file system.
 .Relations of :Terraform:LogicalModule
 [options="header"]
 |====
-| Name                      | Target label(s)                 | Cardinality | Description
-| CALLS                     | <<:Terraform:Module>>           | 1..n        | References all modules called (included via `module` instruction)
-| CONFIGURES_TERRAFORM_WITH | <<:Terraform:Configuration>>    | 1..n        | References Terraform configuration blocks.
-| CREATES_RESOURCES         | <<:Terraform:ProviderResource>> | 1..n        | References resources managed by Terraform.
-| CREATES_RESOURCES_VIA     | <<:Terraform:Provider>>         | 1..n        | References providers used.
-| DECLARES_INPUT_VARIABLE   | <<:Terraform:InputVariable>>    | 1..n        | References the input variables of the module.
-| DECLARES_OUTPUT_VARIABLE  | <<:Terraform:OutputVariable>>   | 1..n        | References the output variables of the module.
+| Name                      | Target label(s)                     | Cardinality | Description
+| CALLS                     | <<:Terraform:Module>>               | 1..n        | References all modules called (included via `module` instruction)
+| CONFIGURES_TERRAFORM_WITH | <<:Terraform:Configuration>>        | 1..n        | References Terraform configuration blocks.
+| CREATES_RESOURCES         | <<:Terraform:ProviderResource>>     | 1..n        | References resources managed by Terraform.
+| CREATES_RESOURCES_VIA     | <<:Terraform:Provider>>             | 1..n        | References providers used.
+| DECLARES_INPUT_VARIABLE   | <<:Terraform:InputVariable>>        | 1..n        | References the input variables of the module.
+| DECLARES_OUTPUT_VARIABLE  | <<:Terraform:OutputVariable>>       | 1..n        | References the output variables of the module.
+| READS_RESOURCES           | <<:Terraform:ProviderDataResource>> | 1..n        | References read-only resources managed by Terraform.
 |====
 
 === :Terraform:Module
@@ -127,6 +128,21 @@ A provider which is used to modify the managed Terraform objects. It inherits al
 from the Terraform configuration language, e.g. `region` for the `provider "aws" {...}`.
 See https://www.terraform.io/docs/configuration/providers.html[Provider Configuration].
 
+=== :Terraform:ProviderDataResource
+Represents a read-only object managed by Terraform. Check the provider
+documentation for details, e.g. https://registry.terraform.io/providers/hashicorp/aws/latest/docs[for AWS].
+
+.Properties of :Terraform:ProviderDataResource
+[options="header"]
+|====
+| Name     | Description
+| name     | Name of the resource.
+| provider | The purpose of the variable.
+| type     | The resource type, e.g. `aws_db_instance`.
+|====
+
+All properties of the provider resource are added as properties.
+
 === :Terraform:ProviderResource
 Represents an object managed by Terraform and modified by a provider. Check the provider
 documentation for details, e.g. https://registry.terraform.io/providers/hashicorp/aws/latest/docs[for AWS].
@@ -135,6 +151,7 @@ documentation for details, e.g. https://registry.terraform.io/providers/hashicor
 [options="header"]
 |====
 | Name     | Description
+| name     | Name of the resource.
 | provider | The purpose of the variable.
 | type     | The resource type, e.g. `aws_db_instance`.
 |====
