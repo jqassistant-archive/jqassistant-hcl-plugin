@@ -8,7 +8,7 @@ resource "aws_security_group" "server_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -18,11 +18,11 @@ resource "aws_security_group" "server_sg" {
 }
 
 data "aws_ami" "ami" {
-  most_recent      = true
-  name_regex       = "my-ami"
-  owners           = ["self"]
+  most_recent = true
+  name_regex  = "my-ami"
+  owners      = ["self"]
 }
-  
+
 resource "aws_instance" "server" {
   instance_type = "t2.micro"
 
