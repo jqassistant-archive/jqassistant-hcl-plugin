@@ -38,8 +38,9 @@ public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
     assertThat(actualDescriptorMain.isValid()).isTrue();
     assertThat(actualDescriptorTest.isValid()).isTrue();
 
-    assertThat(actualDescriptorMain.getModule().getCalledModules().get(0).getSourcedFrom().getFullQualifiedName())
-        .isEqualTo(".terraform.module.test_module");
+    assertThat(actualDescriptorMain.getModule().getCalledModules().stream()
+        .filter(m -> "local_count".equals(m.getInternalName())).findFirst().get().getSourcedFrom()
+        .getFullQualifiedName()).isEqualTo(".terraform.module.test_module");
   }
 
   @Test

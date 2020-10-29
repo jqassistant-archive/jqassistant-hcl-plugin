@@ -1,6 +1,7 @@
 package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +80,7 @@ public class Module extends TerraformObject<TerraformModule> {
     });
 
     final String fullQualifiedNameOfReferencedModule = isOnLocalFileSystem
-        ? LogicalModule.calculateFullQualifiedName(filePath)
+        ? LogicalModule.calculateFullQualifiedName(Paths.get(moduleSource))
         : this.source;
 
     final TerraformLogicalModule referencedModule = storeHelper.createOrRetrieveObject(
