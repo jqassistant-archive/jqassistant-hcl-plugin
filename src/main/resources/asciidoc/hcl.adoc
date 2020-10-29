@@ -6,7 +6,19 @@
 === Configuration parameters
 None
 
+=== :Terraform
+Represents the properties which all nodes have in common.
+
+.Properties of :Terraform
+[options="header"]
+|====
+| Name              | Description
+| fullQualifiedName | An unique identifier for the object.
+| internalName      | An internal name for the object which is not unique, e.g. the ressource name or variable name.
+|====
+
 === :Terraform:Block
+Just a tagging label which represents all objects which can be created with Terraform.
 
 === :Terraform:File
 Represents a source file in the file system containing Terraform instructions.
@@ -20,3 +32,8 @@ Represents a source file in the file system containing Terraform instructions.
 |====
 
 === :Terraform:LogicalModule
+Makes a Terraform module explicit. In Terraform modules are comprised
+of many source files and the module structure is represented by the
+directory structure on the file system.
+
+ 
