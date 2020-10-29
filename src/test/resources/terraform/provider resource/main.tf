@@ -1,24 +1,15 @@
-# from https://github.com/terraform-providers/terraform-provider-aws/blob/master/examples/eip/main.tf
-
 resource "aws_eip" "eip" {
   instance = aws_instance.server.id
   vpc      = true
 }
 
-resource "aws_security_group" "server_sg" {
+resource "aws_security_group" "server" {
   name        = "server-security-group"
   description = "my security group"
 
   ingress {
     from_port   = 22
     to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -47,4 +38,8 @@ resource "aws_instance" "server" {
   tags = {
     Name = "my server"
   }
+}
+
+provider "aws" {
+  region = "eu-central-1"
 }

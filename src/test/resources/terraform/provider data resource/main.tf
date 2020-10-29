@@ -1,4 +1,4 @@
-resource "aws_security_group" "server_sg" {
+resource "aws_security_group" "server" {
   name        = "server-security-group"
   description = "my security group"
 
@@ -33,4 +33,8 @@ resource "aws_instance" "server" {
   tags = {
     Name = "my server"
   }
+}
+
+provider "aws" {
+  region = "eu-central-1"
 }
