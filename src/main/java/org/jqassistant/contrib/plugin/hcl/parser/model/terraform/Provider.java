@@ -18,7 +18,6 @@ public class Provider extends TerraformObject<TerraformProvider> {
    */
   public static String calculateFullQualifiedName(final String providerName, final Path parentFilePath) {
     return getFullQualifiedNamePrefix(parentFilePath) + providerName;
-
   }
 
   private String name;

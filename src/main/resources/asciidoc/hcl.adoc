@@ -21,6 +21,18 @@ Represents the properties which all nodes have in common.
 Just a tagging label which represents all objects which can be created with Terraform.
 
 === :Terraform:Configuration
+Represents the Terraform configuration settings. A detailed description can be found at https://www.terraform.io/docs/configuration/terraform.html.
+
+.Properties of :Terraform:Configuration
+[options="header"]
+|====
+| Name              | Description
+| backend           | The backend used.
+| experiments       | Names the experimental language features.
+| providerMeta      | The data passed to the providers, if supported.
+| requiredProviders | Version constraints for the providers used.
+| requiredVersion   | A version constraint string which specifies the Terraform version of the binary.
+|====
 
 === :Terraform:File
 Represents a source file in the file system containing Terraform instructions.
@@ -44,7 +56,7 @@ directory structure on the file system.
 [options="header"]
 |====
 | Name                      | Target label(s)                 | Cardinality | Description
-| CALLS                     | <<:Terraform:Module>>           | 1..n        | References all modules called (included via module instruction)
+| CALLS                     | <<:Terraform:Module>>           | 1..n        | References all modules called (included via `module` instruction)
 | CONFIGURES_TERRAFORM_WITH | <<:Terraform:Configuration>>    | 1..n        | References Terraform configuration blocks.
 | CREATES_RESOURCES         | <<:Terraform:ProviderResource>> | 1..n        | References resources managed by Terraform.
 | CREATES_RESOURCES_VIA     | <<:Terraform:Provider>>         | 1..n        | References providers used.
@@ -55,5 +67,8 @@ directory structure on the file system.
 === :Terraform:OutputVariable
 
 === :Terraform:Provider
+A provider which is used to modify the managed Terraform objects. It inherits all properties
+from the Terraform configuration language, e.g. `region` for the `provider "aws" {...}`.
+See https://www.terraform.io/docs/configuration/providers.html[Provider Configuration].
 
 === :Terraform:ProviderResource
