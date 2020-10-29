@@ -20,14 +20,14 @@ public class InputVariable extends TerraformObject<TerraformInputVariable> {
 
   private String defaultValue;
   private String description;
-  private String internalName;
+  private String name;
   private String type;
   private String validationErrorMessage;
 
   private String validationRule;
 
-  public String getInternalName() {
-    return this.internalName;
+  public String getName() {
+    return this.name;
   }
 
   @Override
@@ -35,7 +35,7 @@ public class InputVariable extends TerraformObject<TerraformInputVariable> {
       final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
     object.setDefault(this.defaultValue);
     object.setDescription(this.description);
-    object.setInternalName(this.internalName);
+    object.setName(this.name);
     object.setType(this.type);
     object.setValidationErrorMessage(this.validationErrorMessage);
     object.setValidationRule(this.validationRule);
@@ -51,8 +51,8 @@ public class InputVariable extends TerraformObject<TerraformInputVariable> {
     this.description = description;
   }
 
-  public void setInternalName(final String internalName) {
-    this.internalName = internalName;
+  public void setName(final String name) {
+    this.name = name;
   }
 
   public void setType(final String type) {

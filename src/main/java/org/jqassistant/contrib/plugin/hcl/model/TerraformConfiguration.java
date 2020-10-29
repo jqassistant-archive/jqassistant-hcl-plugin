@@ -8,7 +8,7 @@ import com.buschmais.xo.neo4j.api.annotation.Label;
  * @author Matthias Kay
  * @since 1.0
  */
-@Label("TerraformConfiguration")
+@Label("Configuration")
 public interface TerraformConfiguration extends TerraformBlock {
   String getBackend();
 

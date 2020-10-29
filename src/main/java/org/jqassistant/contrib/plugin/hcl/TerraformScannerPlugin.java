@@ -86,7 +86,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
         final InputVariable inputVariable = astParser.extractInputVariable(inputVariableContext);
 
         final TerraformInputVariable terraformInputVariable = inputVariable.toStore(storeHelper,
-            InputVariable.calculateFullQualifiedName(inputVariable.getInternalName(), Paths.get(path)),
+            InputVariable.calculateFullQualifiedName(inputVariable.getName(), Paths.get(path)),
             Paths.get(path).getParent(), currentLogicalModule, TerraformInputVariable.class);
 
         terraformFileDescriptor.getBlocks().add(terraformInputVariable);

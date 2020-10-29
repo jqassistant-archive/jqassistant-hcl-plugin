@@ -1,0 +1,130 @@
+<<TerraformScanner>>
+[[TerraformScanner]]
+
+== Scanner for Terraform files
+
+=== Configuration parameters
+None
+
+=== :Terraform
+Represents the properties which all nodes have in common.
+
+.Properties of :Terraform
+[options="header"]
+|====
+| Name              | Description
+| fullQualifiedName | An unique identifier for the object.
+| internalName      | An internal name for the object which is not unique, e.g. the ressource name or variable name.
+|====
+
+=== :Terraform:Block
+Just a tagging label which represents all objects which can be created with Terraform.
+
+=== :Terraform:Configuration
+Represents the Terraform configuration settings. A detailed description can be found at https://www.terraform.io/docs/configuration/terraform.html.
+
+.Properties of :Terraform:Configuration
+[options="header"]
+|====
+| Name              | Description
+| backend           | The backend used.
+| experiments       | Names the experimental language features.
+| providerMeta      | The data passed to the providers, if supported.
+| requiredProviders | Version constraints for the providers used.
+| requiredVersion   | A version constraint string which specifies the Terraform version of the binary.
+|====
+
+=== :Terraform:File
+Represents a source file in the file system containing Terraform instructions.
+
+.Relations of :Terraform:File
+[options="header"]
+|====
+| Name         | Target label(s)              | Cardinality | Description
+| REFERENCES   | <<:Terraform:Block>>         | 0..n        | References all objects defined in the file.
+| BELONGS_TO   | <<:Terraform:LogicalModule>> | n..1        | References the logical module this file belongs to.
+|====
+
+=== :Terraform:InputVariable
+Represents an input variable of a <<:Terraform:LogicalModule>>. For details check https://www.terraform.io/docs/configuration/variables.html.
+
+.Properties of :Terraform:InputVariable
+[options="header"]
+|====
+| Name                   | Description
+| default                | The default value of the variable if any.
+| description            | The purpose of the variable. 
+| name                   | The name of the variable.
+| type                   | A type constraint to limit the valid values, e.g. `string` or `number`.
+| validationErrorMessage | The validation error message from the included `validation` block.
+| validationRule         | The validation rule from the included `validation` block.
+|====
+
+=== :Terraform:LogicalModule
+Makes a Terraform module explicit. In Terraform modules are comprised
+of many source files and the module structure is represented by the
+directory structure on the file system.
+
+.Relations of :Terraform:LogicalModule
+[options="header"]
+|====
+| Name                      | Target label(s)                 | Cardinality | Description
+| CALLS                     | <<:Terraform:Module>>           | 1..n        | References all modules called (included via `module` instruction)
+| CONFIGURES_TERRAFORM_WITH | <<:Terraform:Configuration>>    | 1..n        | References Terraform configuration blocks.
+| CREATES_RESOURCES         | <<:Terraform:ProviderResource>> | 1..n        | References resources managed by Terraform.
+| CREATES_RESOURCES_VIA     | <<:Terraform:Provider>>         | 1..n        | References providers used.
+| DECLARES_INPUT_VARIABLE   | <<:Terraform:InputVariable>>    | 1..n        | References the input variables of the module.
+| DECLARES_OUTPUT_VARIABLE  | <<:Terraform:OutputVariable>>   | 1..n        | References the output variables of the module.
+|====
+
+=== :Terraform:Module
+Represents the `module` instruction to include (call) other Terraform modules. See https://www.terraform.io/docs/configuration/modules.html.
+
+.Properties of :Terraform:Module
+[options="header"]
+|====
+| Name      | Description
+| count     | Used to include the module multiple times. Usually a number.
+| forEach   | Can be used instead of `count` to iterate over a set.
+| providers | An explicit provider definition exclusively for this module. 
+| source    | The location of the included module, e.g. reference to a git repository or local directory.
+| version   | The version of the module which is accepted.    
+|====
+
+All input variables of the called module are added as properties.
+
+.Relations of :Terraform:Module
+[options="header"]
+|====
+| Name            | Target label(s)              | Cardinality | Description
+| DEPENDS_ON      | <<:Terraform:Block>>         | 1..n        | The list of explicitly named dependencies from the `depends_on`property.
+| IS_SOURCED_FROM | <<:Terraform:LogicalModule>> | n..1        | References the called module.
+|====
+
+=== :Terraform:OutputVariable
+Represents an output variable of a <<:Terraform:LogicalModule>>. For details check https://www.terraform.io/docs/configuration/outputs.html.
+
+.Properties of :Terraform:OutputVariable
+[options="header"]
+|====
+| Name        | Description
+| description | The purpose of the variable.
+| name        | The name of the variable.
+| sensitive   | If the value will be shown in the terraform output or not 
+| type        | Indicates the type of the variable, e.g. `string` or `number`.
+| value       | References the attribute of a <<:Terraform:ProviderResource>> which is returned. Might also contain function calls and multiple resource references.    
+|====
+
+.Relations of :Terraform:OutputVariable
+[options="header"]
+|====
+| Name       | Target label(s)      | Cardinality | Description
+| DEPENDS_ON | <<:Terraform:Block>> | 1..n        | The list of explicitly named dependencies from the `depends_on`property.
+|====
+
+=== :Terraform:Provider
+A provider which is used to modify the managed Terraform objects. It inherits all properties
+from the Terraform configuration language, e.g. `region` for the `provider "aws" {...}`.
+See https://www.terraform.io/docs/configuration/providers.html[Provider Configuration].
+
+=== :Terraform:ProviderResource
