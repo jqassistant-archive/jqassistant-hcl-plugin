@@ -18,13 +18,13 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformProvider;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformProviderResource;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Configuration;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.LogicalModule;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.ProviderResource;
-import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Configuration;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,8 +137,8 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       ast.terraform().forEach(terraformContext -> {
         final Configuration configuration = astParser.extractConfiguration(terraformContext);
         final TerraformConfiguration terraformConfiguration = configuration.toStore(storeHelper,
-            Configuration.calculateFullQualifiedName(Paths.get(path)), Paths.get(path).getParent(), currentLogicalModule,
-            TerraformConfiguration.class);
+            Configuration.calculateFullQualifiedName(Paths.get(path)), Paths.get(path).getParent(),
+            currentLogicalModule, TerraformConfiguration.class);
 
         currentLogicalModule.getConfiguration().add(terraformConfiguration);
       });
@@ -152,5 +152,4 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
 
     return terraformFileDescriptor;
   }
-
 }

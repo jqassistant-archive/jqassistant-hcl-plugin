@@ -31,7 +31,7 @@ public interface TerraformLogicalModule extends TerraformBlock {
   @Relation("CALLS")
   List<TerraformModule> getCalledModules();
 
-  @Relation("CONFIGURE_TERRAFORM_WITH")
+  @Relation("CONFIGURES_TERRAFORM_WITH")
   List<TerraformConfiguration> getConfiguration();
 
   @Relation("DECLARES_INPUT_VARIABLE")
