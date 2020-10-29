@@ -79,6 +79,17 @@ directory structure on the file system.
 | READS_RESOURCES           | <<:Terraform:ProviderDataResource>> | 1..n        | References read-only resources managed by Terraform.
 |====
 
+=== :Terraform:LocalVariable
+Represents a local variable of a <<:Terraform:LogicalModule>>. For details check https://www.terraform.io/docs/configuration/locals.html.
+
+.Properties of :Terraform:LocalVariable
+[options="header"]
+|====
+| Name        | Description
+| name        | The name of the variable.
+| value       | The value of the variable.    
+|====
+
 === :Terraform:Module
 Represents the `module` instruction to include (call) other Terraform modules. See https://www.terraform.io/docs/configuration/modules.html.
 
