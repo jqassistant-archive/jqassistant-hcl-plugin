@@ -46,6 +46,18 @@ Represents a source file in the file system containing Terraform instructions.
 |====
 
 === :Terraform:InputVariable
+Represents an input variable of a <<:Terraform:LogicalModule>>. For details check https://www.terraform.io/docs/configuration/variables.html.
+
+.Properties of :Terraform:InputVariable
+[options="header"]
+|====
+| Name                   | Description
+| default                | The default value of the variable if any.
+| description            | The purpose of the variable. 
+| type                   | A type constraint to limit the valid values, e.g. `string` or `number`.
+| validationErrorMessage | The validation error message from the included `validation` block.
+| validationRule         | The validation rule from the included `validation` block.
+|====
 
 === :Terraform:LogicalModule
 Makes a Terraform module explicit. In Terraform modules are comprised
