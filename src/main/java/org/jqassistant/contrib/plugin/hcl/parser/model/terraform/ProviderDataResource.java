@@ -4,11 +4,11 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jqassistant.contrib.plugin.hcl.model.TerraformDataResource;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformProviderDataResource;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
-public class DataResource extends TerraformObject<TerraformDataResource> {
+public class ProviderDataResource extends TerraformObject<TerraformProviderDataResource> {
   /**
    * Calculates the full qualified name for a module.
    *
@@ -38,7 +38,7 @@ public class DataResource extends TerraformObject<TerraformDataResource> {
   }
 
   @Override
-  protected TerraformDataResource saveInternalState(final TerraformDataResource object,
+  protected TerraformProviderDataResource saveInternalState(final TerraformProviderDataResource object,
       final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
     object.setInternalName(this.name);
     object.setProvider(this.providerName);

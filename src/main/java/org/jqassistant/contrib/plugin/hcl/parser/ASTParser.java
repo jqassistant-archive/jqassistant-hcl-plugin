@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.DataContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ModuleContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ProviderContext;
@@ -23,6 +24,7 @@ import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.ProviderDataResource;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.ProviderResource;
 import org.jqassistant.contrib.plugin.hcl.util.StringHelper;
 
@@ -183,12 +185,44 @@ public class ASTParser {
     return provider;
   }
 
+  /**
+   * Extracts the properties of a data resource.
+   *
+   * @param providerDataResourceContext Points to a data resource which is
+   *                                    extracted.
+   * @return The {@link ProviderDataResource} extracted from the AST.
+   */
+  public ProviderDataResource extractProviderDataResource(final DataContext providerDataResourceContext) {
+    Preconditions.checkArgument(providerDataResourceContext.getChildCount() >= 4, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final ProviderDataResource providerDataResource = new ProviderDataResource();
+    final String resourceType = StringHelper.removeQuotes(providerDataResourceContext.getChild(1).getText());
+
+    providerDataResource.setProviderName(extractProviderNameFromResourceType(resourceType));
+    providerDataResource.setType(resourceType);
+    providerDataResource.setName(StringHelper.removeQuotes(providerDataResourceContext.getChild(2).getText()));
+
+    final BiConsumer<String, String> setProperty = (name, value) -> {
+      providerDataResource.setProperty(StringHelper.removeQuotes(name), StringHelper.removeQuotes(value));
+    };
+
+    parseUnknownPropertiesFromBlock(Collections.emptySet(), setProperty, providerDataResourceContext.getChild(3));
+
+    return providerDataResource;
+  }
+
   private String extractProviderNameFromResourceType(final String resourceType) {
     Preconditions.checkArgument(resourceType.contains("_"), TERRAFORM_FILE_INVALID_MESSAGE);
 
     return resourceType.substring(0, resourceType.indexOf('_'));
   }
 
+  /**
+   * Extracts the properties of a resource.
+   *
+   * @param providerResourceContext Points to a resource which is extracted.
+   * @return The {@link ProviderResource} extracted from the AST.
+   */
   public ProviderResource extractProviderResource(final ResourceContext providerResourceContext) {
     Preconditions.checkArgument(providerResourceContext.getChildCount() >= 4, TERRAFORM_FILE_INVALID_MESSAGE);
 
