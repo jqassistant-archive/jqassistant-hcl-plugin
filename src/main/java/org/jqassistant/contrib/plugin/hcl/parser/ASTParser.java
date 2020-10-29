@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ArgumentContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.BlockContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.DataContext;
+import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.LocalContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ModuleContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.OutputContext;
 import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.ProviderContext;
@@ -21,6 +22,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.VariableContex
 import org.jqassistant.contrib.plugin.hcl.parser.PropertyParseInstruction.ResultType;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Configuration;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.LocalVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Provider;
@@ -94,6 +96,25 @@ public class ASTParser {
     parsePropertiesRecursivlyFromBlock(setter, inputVariableContext.getChild(2));
 
     return inputVariable;
+  }
+
+  /**
+   * Extracts the properties of an output variable.
+   *
+   * @param localVariableContext Points to an output variable of the AST and is
+   *                             extracted.
+   * @return The {@link OutputVariable} extracted from the AST.
+   */
+  public LocalVariable extractLocalVariable(final LocalContext localVariableContext) {
+    Preconditions.checkArgument(localVariableContext.getChildCount() == 2, TERRAFORM_FILE_INVALID_MESSAGE);
+
+    final LocalVariable localVariable = new LocalVariable();
+    localVariable
+        .setName(StringHelper.removeQuotes(localVariableContext.getChild(1).getChild(1).getChild(0).getText()));
+    localVariable
+        .setValue(StringHelper.removeQuotes(localVariableContext.getChild(1).getChild(1).getChild(2).getText()));
+
+    return localVariable;
   }
 
   /**

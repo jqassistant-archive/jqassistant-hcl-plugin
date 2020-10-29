@@ -22,6 +22,9 @@ public interface TerraformLogicalModule extends TerraformBlock {
   @Relation("DECLARES_INPUT_VARIABLE")
   List<TerraformInputVariable> getInputVariables();
 
+  @Relation("DECLARES_LOCAL_VARIABLE")
+  List<TerraformLocalVariable> getLocalVariables();
+
   @Relation("DECLARES_OUTPUT_VARIABLE")
   List<TerraformOutputVariable> getOutputVariables();
 

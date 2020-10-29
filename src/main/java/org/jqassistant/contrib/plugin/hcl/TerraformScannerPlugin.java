@@ -12,6 +12,7 @@ import org.jqassistant.contrib.plugin.hcl.grammar.terraformParser.FileContext;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformConfiguration;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLocalVariable;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable;
@@ -21,6 +22,7 @@ import org.jqassistant.contrib.plugin.hcl.model.TerraformProviderResource;
 import org.jqassistant.contrib.plugin.hcl.parser.ASTParser;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Configuration;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.InputVariable;
+import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.LocalVariable;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.LogicalModule;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.Module;
 import org.jqassistant.contrib.plugin.hcl.parser.model.terraform.OutputVariable;
@@ -104,6 +106,17 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
 
         terraformFileDescriptor.getBlocks().add(terraFormOutputVariable);
         currentLogicalModule.getOutputVariables().add(terraFormOutputVariable);
+      });
+
+      ast.local().forEach(localVariableContext -> {
+        final LocalVariable localVariable = astParser.extractLocalVariable(localVariableContext);
+
+        final TerraformLocalVariable terraformLocalVariable = localVariable.toStore(storeHelper,
+            LocalVariable.calculateFullQualifiedName(localVariable.getName(), Paths.get(path)),
+            Paths.get(path).getParent(), currentLogicalModule, TerraformLocalVariable.class);
+
+        terraformFileDescriptor.getBlocks().add(terraformLocalVariable);
+        currentLogicalModule.getLocalVariables().add(terraformLocalVariable);
       });
 
       ast.module().forEach(moduleContext -> {

@@ -10,6 +10,7 @@
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformFileDescriptor</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformInputVariable</class>
+		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformLocalVariable</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformModule</class>
 		<class>org.jqassistant.contrib.plugin.hcl.model.TerraformOutputVariable</class>
