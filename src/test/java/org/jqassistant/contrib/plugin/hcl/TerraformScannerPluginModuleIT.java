@@ -17,16 +17,40 @@ import org.junit.jupiter.api.Test;
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 
 public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
-  private static final String FILE_NAME = "/terraform/module/main.tf";
+  private static final String FILE_NAME_MAIN = "/terraform/module/main.tf";
+  private static final String FILE_NAME_TEST_MODULE = "/terraform/module/test_module/main.tf";
+
+  @Test
+  public void shouldLinkTheCalledModule_whenScan_givenModuleCall() {
+    // given
+    final File givenTestFileMain = new File(this.getClassesDirectory(TerraformScannerPluginOutputVariableIT.class),
+        FILE_NAME_MAIN);
+    final File givenTestFileTestModule = new File(
+        this.getClassesDirectory(TerraformScannerPluginOutputVariableIT.class), FILE_NAME_TEST_MODULE);
+
+    // when
+    final TerraformFileDescriptor actualDescriptorMain = this.getScanner().scan(givenTestFileMain, FILE_NAME_MAIN,
+        DefaultScope.NONE);
+    final TerraformFileDescriptor actualDescriptorTest = this.getScanner().scan(givenTestFileTestModule,
+        FILE_NAME_TEST_MODULE, DefaultScope.NONE);
+
+    // then
+    assertThat(actualDescriptorMain.isValid()).isTrue();
+    assertThat(actualDescriptorTest.isValid()).isTrue();
+
+    assertThat(actualDescriptorMain.getModule().getCalledModules().stream()
+        .filter(m -> "local_count".equals(m.getInternalName())).findFirst().get().getSourcedFrom()
+        .getFullQualifiedName()).isEqualTo(".terraform.module.test_module");
+  }
 
   @Test
   public void shouldReadAllAttributes_whenScan_givenLocalModuleDefinitionCount() {
     // given
     final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginOutputVariableIT.class),
-        FILE_NAME);
+        FILE_NAME_MAIN);
 
     // when
-    final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_NAME,
+    final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_NAME_MAIN,
         DefaultScope.NONE);
 
     // then
@@ -55,10 +79,10 @@ public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
   public void shouldReadAllAttributes_whenScan_givenLocalModuleDefinitionForEach() {
     // given
     final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginOutputVariableIT.class),
-        FILE_NAME);
+        FILE_NAME_MAIN);
 
     // when
-    final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_NAME,
+    final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_NAME_MAIN,
         DefaultScope.NONE);
 
     // then
@@ -77,10 +101,10 @@ public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
   public void shouldReadVersionAttribute_whenScan_givenRemoteModuleDefinition() {
     // given
     final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginOutputVariableIT.class),
-        FILE_NAME);
+        FILE_NAME_MAIN);
 
     // when
-    final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_NAME,
+    final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_NAME_MAIN,
         DefaultScope.NONE);
 
     // then

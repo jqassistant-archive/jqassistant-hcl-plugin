@@ -1,6 +1,7 @@
 package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,11 +55,18 @@ public class Module extends TerraformObject<TerraformModule> {
     return this.source;
   }
 
+  /**
+   * @return <code>true</code> if the <code>source</code> references a file on the
+   *         local file system. <code>false</code> otherwise.
+   */
+  private boolean isSourceOnLocalFileSystem() {
+    return this.source != null && (this.source.startsWith("./") || this.source.startsWith("../"));
+  }
+
   @Override
   protected TerraformModule saveInternalState(final TerraformModule object, final TerraformLogicalModule partOfModule,
       final Path filePath, final StoreHelper storeHelper) {
-    final boolean isOnLocalFileSystem = this.source.startsWith("./") || this.source.startsWith("../");
-    final String moduleSource = isOnLocalFileSystem
+    final String moduleSource = isSourceOnLocalFileSystem()
         ? filePath.resolve(this.source).normalize().toString().replace('\\', '/')
         : this.source;
 
@@ -78,16 +86,18 @@ public class Module extends TerraformObject<TerraformModule> {
       object.getDependantResources().add(block);
     });
 
-    final String fullQualifiedNameOfReferencedModule = isOnLocalFileSystem
-        ? LogicalModule.calculateFullQualifiedName(filePath)
-        : this.source;
+    // create the logical module for modules present in the local file system only
+    if (isSourceOnLocalFileSystem()) {
+      final String fullQualifiedNameOfReferencedModule = LogicalModule
+          .calculateFullQualifiedName(Paths.get(moduleSource));
 
-    final TerraformLogicalModule referencedModule = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule), null,
-        TerraformLogicalModule.class);
-    referencedModule.setFullQualifiedName(fullQualifiedNameOfReferencedModule);
+      final TerraformLogicalModule referencedModule = storeHelper.createOrRetrieveObject(
+          ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule), null,
+          TerraformLogicalModule.class);
+      referencedModule.setFullQualifiedName(fullQualifiedNameOfReferencedModule);
 
-    object.setSourcedFrom(referencedModule);
+      object.setSourcedFrom(referencedModule);
+    }
 
     storeHelper.addPropertiesToObject(object, this.matchedInputVariables);
 

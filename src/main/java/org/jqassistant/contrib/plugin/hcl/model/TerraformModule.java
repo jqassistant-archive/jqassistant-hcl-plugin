@@ -39,6 +39,10 @@ public interface TerraformModule extends TerraformBlock {
 
   String getSource();
 
+  /**
+   * @return The {@link TerraformLogicalModule} in case it references a module on
+   *         the local file system. <code>null</code> otherwise.
+   */
   @Relation("IS_SOURCED_FROM")
   TerraformLogicalModule getSourcedFrom();
 

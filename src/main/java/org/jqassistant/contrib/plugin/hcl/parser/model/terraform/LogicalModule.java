@@ -24,7 +24,7 @@ public class LogicalModule extends TerraformObject<TerraformLogicalModule> {
    * @return A name which can be used as ID
    */
   public static String calculateFullQualifiedName(final Path directory) {
-    return directory.normalize().getParent().toString().replace(File.separatorChar, '.');
+    return directory.normalize().toString().replace(File.separatorChar, '.');
   }
 
   private final String name;
@@ -36,7 +36,7 @@ public class LogicalModule extends TerraformObject<TerraformLogicalModule> {
   @Override
   protected TerraformLogicalModule saveInternalState(final TerraformLogicalModule object,
       final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
-    final String fullQualifiedName = calculateFullQualifiedName(filePath);
+    final String fullQualifiedName = calculateFullQualifiedName(filePath.getParent());
 
     final TerraformLogicalModule module = storeHelper.createOrRetrieveObject(
         ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedName),
