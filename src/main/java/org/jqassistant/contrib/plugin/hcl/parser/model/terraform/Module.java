@@ -79,10 +79,12 @@ public class Module extends TerraformObject<TerraformModule> {
     object.setVersion(this.version);
 
     this.dependantResources.forEach(dependentObjectName -> {
+      final String dependentFullQualifiedObjectName = partOfModule.getFullQualifiedName() + "." + dependentObjectName;
+
       final TerraformBlock block = storeHelper.createOrRetrieveObject(
           ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), partOfModule,
           TerraformBlock.class);
-      block.setFullQualifiedName(dependentObjectName);
+      block.setFullQualifiedName(dependentFullQualifiedObjectName);
 
       object.getDependantResources().add(block);
     });
