@@ -1,6 +1,7 @@
 package org.jqassistant.contrib.plugin.hcl.util;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
@@ -99,23 +100,39 @@ public class StoreHelper {
     logger.trace("Query database for object: {}, {}", clazz.getSimpleName(), searchCriteria);
 
     if (partOfModule == null) {
-      final String query = String.format("match (n:Terraform %s) where n:%s return n", fieldClause, label);
+      final String query = String.format("match (n:Terraform %s) where (n:%s or n:Block) return n", fieldClause, label);
       logger.trace(query);
       storeResult = this.store.executeQuery(query);
     } else {
-      final String query = String.format("match (n:Terraform %s)-[*]-(m:LogicalModule {%s: '%s'}) where n:%s return n",
-          fieldClause, TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME.getModelName(),
-          partOfModule.getFullQualifiedName(), label);
+      final String query = String.format("match (n:Terraform %s) where (n:%s or n:Block) return n", fieldClause, label);
       logger.trace(query);
       storeResult = this.store.executeQuery(query);
     }
 
+    T objectInStore;
+
     if (storeResult.hasResult()) {
       logger.debug("Object found in database");
-      return storeResult.getSingleResult().get("n", clazz);
+      objectInStore = (T) storeResult.getSingleResult().get("n", TerraformBlock.class);
     } else {
       logger.debug("Creating a new object in the database");
-      return this.store.create(clazz);
+      objectInStore = this.store.create(clazz);
     }
+
+    // TODO rework please. Looks ugly
+    final boolean blockNeedsConversion = !clazz.equals(TerraformBlock.class)
+        && Stream.of(objectInStore.getClass().getAnnotatedInterfaces())
+            .anyMatch(p -> p.getType().getTypeName().equals(TerraformBlock.class.getTypeName()));
+
+    if (blockNeedsConversion) {
+      // we read a TerraformBlock. This might happen when we did not know the correct
+      // type at time of creation. We correct the descriptor now
+      objectInStore = this.store.addDescriptorType(objectInStore, clazz);
+    }
+
+    final String fullQualifiedName = searchCriteria.get(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME);
+    objectInStore.setFullQualifiedName(fullQualifiedName);
+
+    return objectInStore.as(clazz);
   }
 }
