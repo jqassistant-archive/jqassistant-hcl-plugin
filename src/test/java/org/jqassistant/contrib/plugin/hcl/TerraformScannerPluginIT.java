@@ -26,5 +26,6 @@ public class TerraformScannerPluginIT extends AbstractPluginIT {
     final TerraformFileDescriptor descriptor = this.getScanner().scan(testFile, FILE_TEST_TF, DefaultScope.NONE);
 
     assertThat(descriptor.isValid()).isTrue();
+    assertThat(descriptor.getName()).isEqualTo("main.tf");
   }
 }

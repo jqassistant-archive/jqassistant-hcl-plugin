@@ -28,7 +28,9 @@ public class TerraformScannerPluginLocalVariableIT extends AbstractPluginIT {
     // then
     assertThat(actualDescriptor.isValid()).isTrue();
     assertThat(actualDescriptor.getModule().getLocalVariables()).hasSize(1).first()
-        .extracting(TerraformLocalVariable::getName, TerraformLocalVariable::getValue).containsExactly("a", "b");
+        .extracting(TerraformLocalVariable::getName, TerraformLocalVariable::getValue,
+            TerraformLocalVariable::getFullQualifiedName, TerraformLocalVariable::getInternalName)
+        .containsExactly("a", "b", ".terraform.local variable.a", "a");
   }
 
   @BeforeEach

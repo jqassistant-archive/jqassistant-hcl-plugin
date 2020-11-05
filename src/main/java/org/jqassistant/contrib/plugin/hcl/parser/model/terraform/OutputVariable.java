@@ -48,6 +48,8 @@ public class OutputVariable extends TerraformObject<TerraformOutputVariable> {
     object.setName(this.name);
     object.setSensitive(this.sensitive);
     object.setValue(this.value);
+    object.setFullQualifiedName(partOfModule.getFullQualifiedName() + "." + this.name);
+    object.setInternalName(this.name);
 
     this.dependentObjects.forEach(dependentObjectName -> {
       final TerraformBlock block = storeHelper.createOrRetrieveObject(

@@ -5,6 +5,15 @@
 Scans HCL files on the local file system. References to modules which are not present on the local file system are
 not scanned.
 
+=== Default attributes for all nodes
+[options="header"]
+|====
+| Name              | Description
+| fullQualifiedName | An unique identifier for the object.
+| internalName      | Usually identical to the name property. If a name property is set in the terraform files it represents this value.
+| name              | The display name which represents the node.
+|====
+
 === Configuration parameters
 None
 
@@ -12,12 +21,6 @@ None
 Represents the properties which all nodes have in common.
 
 .Properties of :Terraform
-[options="header"]
-|====
-| Name              | Description
-| fullQualifiedName | An unique identifier for the object.
-| internalName      | An internal name for the object which is not unique, e.g. the ressource name or variable name.
-|====
 
 === :Terraform:Block
 Just a tagging label which represents all objects which can be created with Terraform.
@@ -56,7 +59,6 @@ Represents an input variable of a <<:Terraform:LogicalModule>>. For details chec
 | Name                   | Description
 | default                | The default value of the variable if any.
 | description            | The purpose of the variable. 
-| name                   | The name of the variable.
 | type                   | A type constraint to limit the valid values, e.g. `string` or `number`.
 | validationErrorMessage | The validation error message from the included `validation` block.
 | validationRule         | The validation rule from the included `validation` block.
@@ -88,7 +90,6 @@ Represents a local variable of a <<:Terraform:LogicalModule>>. For details check
 [options="header"]
 |====
 | Name        | Description
-| name        | The name of the variable.
 | value       | The value of the variable.    
 |====
 
@@ -124,7 +125,6 @@ Represents an output variable of a <<:Terraform:LogicalModule>>. For details che
 |====
 | Name        | Description
 | description | The purpose of the variable.
-| name        | The name of the variable.
 | sensitive   | If the value will be shown in the terraform output or not 
 | type        | Indicates the type of the variable, e.g. `string` or `number`.
 | value       | References the attribute of a <<:Terraform:ProviderResource>> which is returned. Might also contain function calls and multiple resource references.    
@@ -150,7 +150,6 @@ documentation for details, e.g. https://registry.terraform.io/providers/hashicor
 [options="header"]
 |====
 | Name     | Description
-| name     | Name of the resource.
 | provider | The purpose of the variable.
 | type     | The resource type, e.g. `aws_db_instance`.
 |====
@@ -165,7 +164,6 @@ documentation for details, e.g. https://registry.terraform.io/providers/hashicor
 [options="header"]
 |====
 | Name     | Description
-| name     | Name of the resource.
 | provider | The purpose of the variable.
 | type     | The resource type, e.g. `aws_db_instance`.
 |====

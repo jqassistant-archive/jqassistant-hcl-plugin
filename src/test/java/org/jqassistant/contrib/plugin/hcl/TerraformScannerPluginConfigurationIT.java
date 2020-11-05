@@ -35,6 +35,8 @@ public class TerraformScannerPluginConfigurationIT extends AbstractTerraformPlug
     assertThat(actualConfiguration.getRequiredProviders())
         .isEqualTo("{aws={version=\">= 2.7.0\"source=\"hashicorp/aws\"}}");
     assertThat(actualConfiguration.getRequiredVersion()).isEqualTo(">=1.2.0");
+    assertThat(actualConfiguration.getName()).isEqualTo("terraform");
+    assertThat(actualConfiguration.getInternalName()).isEqualTo("terraform");
   }
 
   @BeforeEach

@@ -2,8 +2,8 @@ package org.jqassistant.contrib.plugin.hcl.parser.model.terraform;
 
 import java.nio.file.Path;
 
-import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformConfiguration;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
 public class Configuration extends TerraformObject<TerraformConfiguration> {
@@ -34,6 +34,8 @@ public class Configuration extends TerraformObject<TerraformConfiguration> {
     object.setBackend(this.backend);
     object.setExperiments(this.experiments);
     object.setInternalName("terraform");
+    object.setName("terraform");
+    object.setFullQualifiedName(partOfModule.getFullQualifiedName() + "." + "terraform");
     object.setProviderMeta(this.providerMeta);
     object.setRequiredProviders(this.requiredProviders);
     object.setRequiredVersion(this.requiredVersion);

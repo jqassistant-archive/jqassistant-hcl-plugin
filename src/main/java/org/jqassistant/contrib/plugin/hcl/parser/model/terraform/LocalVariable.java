@@ -31,6 +31,8 @@ public class LocalVariable extends TerraformObject<TerraformLocalVariable> {
       final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
     object.setName(this.name);
     object.setValue(this.value);
+    object.setFullQualifiedName(partOfModule.getFullQualifiedName() + "." + this.name);
+    object.setInternalName(this.name);
 
     return object;
   }

@@ -34,7 +34,8 @@ public class TerraformScannerPluginProviderDataResourceIT extends AbstractTerraf
 
           assertThat(actualProperties).containsOnly(entry("most_recent", "true"), entry("name_regex", "my-ami"),
               entry("owners", "[\"self\"]"), entry("provider", "aws"), entry("type", "aws_ami"),
-              entry("fullQualifiedName", ".terraform.aws_ami.ami"), entry("internalName", "ami"));
+              entry("fullQualifiedName", ".terraform.provider data resource.aws_ami.ami"), entry("internalName", "ami"),
+              entry("name", "ami"));
         });
   }
 

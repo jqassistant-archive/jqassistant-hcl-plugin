@@ -74,6 +74,7 @@ public class TerraformScannerPlugin extends AbstractScannerPlugin<FileResource, 
       final StoreHelper storeHelper = new StoreHelper(store);
 
       terraformFileDescriptor.setInternalName(item.getFile().getName());
+      terraformFileDescriptor.setName(terraformFileDescriptor.getInternalName());
 
       final Path moduleDirectory = Paths.get(path).getParent();
       final String logicalModuleName = moduleDirectory.getName(moduleDirectory.getNameCount() - 1).toString();

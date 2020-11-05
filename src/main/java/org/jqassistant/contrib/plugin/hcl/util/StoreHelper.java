@@ -3,6 +3,7 @@ package org.jqassistant.contrib.plugin.hcl.util;
 import java.util.Map;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModelField;
 import org.slf4j.Logger;
@@ -37,6 +38,12 @@ public class StoreHelper {
    */
   public void addPropertiesToObject(final TerraformBlock object, final Map<String, String> properties) {
     properties.forEach((name, value) -> {
+      // fix name clashes
+      if (name.equals("name")) {
+        // the name attribute of a node is transferred to internalName
+        name = TerraformDescriptor.FieldName.INTERNAL_NAME.getModelName();
+      }
+
       this.store.executeQuery(String.format("match (s:Terraform) where ID(s) =  %s set s.%s = '%s' return s.id",
           object.getId().toString(), name, value));
     });
@@ -93,19 +100,21 @@ public class StoreHelper {
 
     if (partOfModule == null) {
       final String query = String.format("match (n:Terraform %s) where n:%s return n", fieldClause, label);
+      logger.trace(query);
       storeResult = this.store.executeQuery(query);
     } else {
       final String query = String.format("match (n:Terraform %s)-[*]-(m:LogicalModule {%s: '%s'}) where n:%s return n",
           fieldClause, TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME.getModelName(),
           partOfModule.getFullQualifiedName(), label);
+      logger.trace(query);
       storeResult = this.store.executeQuery(query);
     }
 
     if (storeResult.hasResult()) {
-      logger.trace("Object found in database");
+      logger.debug("Object found in database");
       return storeResult.getSingleResult().get("n", clazz);
     } else {
-      logger.trace("Creating a new object in the database");
+      logger.debug("Creating a new object in the database");
       return this.store.create(clazz);
     }
   }

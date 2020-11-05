@@ -4,8 +4,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jqassistant.contrib.plugin.hcl.model.TerraformProviderDataResource;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
+import org.jqassistant.contrib.plugin.hcl.model.TerraformProviderDataResource;
 import org.jqassistant.contrib.plugin.hcl.util.StoreHelper;
 
 public class ProviderDataResource extends TerraformObject<TerraformProviderDataResource> {
@@ -41,6 +41,8 @@ public class ProviderDataResource extends TerraformObject<TerraformProviderDataR
   protected TerraformProviderDataResource saveInternalState(final TerraformProviderDataResource object,
       final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
     object.setInternalName(this.name);
+    object.setName(this.name);
+    object.setFullQualifiedName(partOfModule.getFullQualifiedName() + "." + this.type + "." + this.name);
     object.setProvider(this.providerName);
     object.setType(this.type);
 
