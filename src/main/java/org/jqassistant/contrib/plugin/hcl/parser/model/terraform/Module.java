@@ -66,7 +66,7 @@ public class Module extends TerraformObject<TerraformModule> {
   @Override
   protected TerraformModule saveInternalState(final TerraformModule object, final TerraformLogicalModule partOfModule,
       final Path filePath, final StoreHelper storeHelper) {
-    final String moduleSource = isOnLocalFileSystem
+    final String moduleSource = isSourceOnLocalFileSystem()
         ? filePath.resolve(this.source).normalize().toString().replace('\\', '/')
         : this.source;
 

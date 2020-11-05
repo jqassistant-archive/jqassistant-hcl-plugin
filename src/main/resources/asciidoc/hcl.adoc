@@ -2,6 +2,8 @@
 [[TerraformScanner]]
 
 == Scanner for Terraform files
+Scans HCL files on the local file system. References to modules which are not present on the local file system are
+not scanned.
 
 === Configuration parameters
 None
