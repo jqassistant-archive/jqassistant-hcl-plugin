@@ -52,11 +52,12 @@ public class OutputVariable extends TerraformObject<TerraformOutputVariable> {
     object.setInternalName(this.name);
 
     this.dependentObjects.forEach(dependentObjectName -> {
+      final String dependentFullQualifiedObjectName = partOfModule.getFullQualifiedName() + "." + dependentObjectName;
+
       final TerraformBlock block = storeHelper.createOrRetrieveObject(
-          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME,
-              TerraformObject.getFullQualifiedNamePrefix(filePath) + dependentObjectName),
-          partOfModule, TerraformBlock.class);
-      block.setFullQualifiedName(dependentObjectName);
+          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentFullQualifiedObjectName), partOfModule,
+          TerraformBlock.class);
+      block.setFullQualifiedName(dependentFullQualifiedObjectName);
 
       object.getDependantObjects().add(block);
     });
