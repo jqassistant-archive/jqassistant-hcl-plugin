@@ -39,6 +39,7 @@ public class InputVariable extends TerraformObject<TerraformInputVariable> {
     object.setType(this.type);
     object.setValidationErrorMessage(this.validationErrorMessage);
     object.setValidationRule(this.validationRule);
+    object.setInternalName(partOfModule.getInternalName() + "." + this.name);
 
     return object;
   }

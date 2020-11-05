@@ -30,8 +30,10 @@ public class TerraformScannerPluginInputVariableIT extends AbstractPluginIT {
     assertThat(actualDescriptor.getModule().getInputVariables()).hasSize(1).first()
         .extracting(TerraformInputVariable::getName, TerraformInputVariable::getDefault,
             TerraformInputVariable::getType, TerraformInputVariable::getDescription,
-            TerraformInputVariable::getValidationErrorMessage, TerraformInputVariable::getValidationRule)
-        .containsExactly("all", "xyz", "string", "all description", "This is an error.", "length(var.all)>0");
+            TerraformInputVariable::getValidationErrorMessage, TerraformInputVariable::getValidationRule,
+            TerraformInputVariable::getInternalName)
+        .containsExactly("all", "xyz", "string", "all description", "This is an error.", "length(var.all)>0",
+            "input variable.all");
   }
 
   @BeforeEach
