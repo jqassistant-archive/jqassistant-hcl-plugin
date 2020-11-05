@@ -60,7 +60,7 @@ public abstract class TerraformObject<T extends TerraformBlock> {
   public T toStore(final StoreHelper storeHelper, final String fullQualifiedName, final Path filePath,
       final TerraformLogicalModule partOfModule, final Class<T> clazz) {
     final T object = storeHelper.createOrRetrieveObject(
-        ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedName), partOfModule, clazz);
+        ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedName), clazz);
 
     return saveInternalState(object, partOfModule, filePath, storeHelper);
   }

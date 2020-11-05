@@ -55,7 +55,7 @@ public class OutputVariable extends TerraformObject<TerraformOutputVariable> {
       final String dependentFullQualifiedObjectName = partOfModule.getFullQualifiedName() + "." + dependentObjectName;
 
       final TerraformBlock block = storeHelper.createOrRetrieveObject(
-          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentFullQualifiedObjectName), partOfModule,
+          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentFullQualifiedObjectName),
           TerraformBlock.class);
       block.setFullQualifiedName(dependentFullQualifiedObjectName);
 

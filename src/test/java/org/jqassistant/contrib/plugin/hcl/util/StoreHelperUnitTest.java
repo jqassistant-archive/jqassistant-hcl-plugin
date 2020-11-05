@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,21 +38,14 @@ public class StoreHelperUnitTest {
 
   }
 
-  private AutoCloseable closeableMocks;
-
   private StoreHelper storeHelper;
 
   @Mock
   private Store stubbedStore;
 
-  @AfterEach
-  public void closeMocks() throws Exception {
-    this.closeableMocks.close();
-  }
-
   @BeforeEach
   public void initClassUnderTest() {
-    this.closeableMocks = MockitoAnnotations.openMocks(this);
+    MockitoAnnotations.initMocks(this);
 
     this.storeHelper = new StoreHelper(this.stubbedStore);
   }
