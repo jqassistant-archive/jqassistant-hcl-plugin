@@ -44,6 +44,7 @@ public class LogicalModule extends TerraformObject<TerraformLogicalModule> {
 
     module.setFullQualifiedName(fullQualifiedName);
     module.setInternalName(this.name);
+    module.setName(this.name);
 
     return module;
   }

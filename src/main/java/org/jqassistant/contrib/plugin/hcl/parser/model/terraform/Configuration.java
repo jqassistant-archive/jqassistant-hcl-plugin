@@ -34,6 +34,7 @@ public class Configuration extends TerraformObject<TerraformConfiguration> {
     object.setBackend(this.backend);
     object.setExperiments(this.experiments);
     object.setInternalName("terraform");
+    object.setName("terraform");
     object.setFullQualifiedName(partOfModule.getFullQualifiedName() + "." + "terraform");
     object.setProviderMeta(this.providerMeta);
     object.setRequiredProviders(this.requiredProviders);
