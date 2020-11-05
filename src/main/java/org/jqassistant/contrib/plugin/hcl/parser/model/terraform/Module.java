@@ -79,10 +79,12 @@ public class Module extends TerraformObject<TerraformModule> {
     object.setVersion(this.version);
 
     this.dependantResources.forEach(dependentObjectName -> {
+      final String dependentFullQualifiedObjectName = partOfModule.getFullQualifiedName() + "." + dependentObjectName;
+
       final TerraformBlock block = storeHelper.createOrRetrieveObject(
-          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentObjectName), partOfModule,
+          ImmutableMap.of(TerraformBlock.FieldName.FULL_QUALIFIED_NAME, dependentFullQualifiedObjectName),
           TerraformBlock.class);
-      block.setFullQualifiedName(dependentObjectName);
+      block.setFullQualifiedName(dependentFullQualifiedObjectName);
 
       object.getDependantResources().add(block);
     });
@@ -93,7 +95,7 @@ public class Module extends TerraformObject<TerraformModule> {
           .calculateFullQualifiedName(Paths.get(moduleSource));
 
       final TerraformLogicalModule referencedModule = storeHelper.createOrRetrieveObject(
-          ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule), null,
+          ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedNameOfReferencedModule),
           TerraformLogicalModule.class);
       referencedModule.setFullQualifiedName(fullQualifiedNameOfReferencedModule);
 

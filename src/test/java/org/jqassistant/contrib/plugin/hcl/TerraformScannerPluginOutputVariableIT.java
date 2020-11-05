@@ -40,7 +40,8 @@ public class TerraformScannerPluginOutputVariableIT extends AbstractPluginIT {
         .getDependantObjects();
 
     assertThat(actualDependantObjects).hasSize(2).extracting(TerraformBlock::getFullQualifiedName)
-        .containsExactlyInAnyOrder("aws_db_instance.db", "aws_db_instance.db_new");
+        .containsExactlyInAnyOrder(".terraform.output variable.aws_db_instance.db",
+            ".terraform.output variable.aws_db_instance.db_new");
   }
 
   @BeforeEach

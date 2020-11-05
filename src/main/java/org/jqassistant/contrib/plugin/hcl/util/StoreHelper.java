@@ -1,10 +1,10 @@
 package org.jqassistant.contrib.plugin.hcl.util;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.jqassistant.contrib.plugin.hcl.model.TerraformBlock;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformDescriptor;
-import org.jqassistant.contrib.plugin.hcl.model.TerraformLogicalModule;
 import org.jqassistant.contrib.plugin.hcl.model.TerraformModelField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,23 +62,6 @@ public class StoreHelper {
    */
   public <T extends TerraformBlock> T createOrRetrieveObject(final Map<TerraformModelField, String> searchCriteria,
       final Class<T> clazz) {
-    return createOrRetrieveObject(searchCriteria, null, clazz);
-  };
-
-  /**
-   * Retrieves the object with <code>id</code> from the store or creates a new
-   * object if it does not exist.
-   *
-   * @param <T>            Creates an object of this type.
-   * @param searchCriteria A field name to value map
-   * @param partOfModule   the existing object must belong to this module
-   * @param clazz          {@link Class} of the object to create/find in the
-   *                       store.
-   *
-   * @return Either the existing object from the store or a new one.
-   */
-  public <T extends TerraformBlock> T createOrRetrieveObject(final Map<TerraformModelField, String> searchCriteria,
-      final TerraformLogicalModule partOfModule, final Class<T> clazz) {
     final Label labelAnnotation = clazz.getAnnotation(Label.class);
     final String label = labelAnnotation.value();
 
@@ -98,24 +81,35 @@ public class StoreHelper {
 
     logger.trace("Query database for object: {}, {}", clazz.getSimpleName(), searchCriteria);
 
-    if (partOfModule == null) {
-      final String query = String.format("match (n:Terraform %s) where n:%s return n", fieldClause, label);
-      logger.trace(query);
-      storeResult = this.store.executeQuery(query);
-    } else {
-      final String query = String.format("match (n:Terraform %s)-[*]-(m:LogicalModule {%s: '%s'}) where n:%s return n",
-          fieldClause, TerraformLogicalModule.FieldName.FULL_QUALIFIED_NAME.getModelName(),
-          partOfModule.getFullQualifiedName(), label);
-      logger.trace(query);
-      storeResult = this.store.executeQuery(query);
-    }
+    final String query = String.format("match (n:Terraform %s) where (n:%s or n:Block) return n", fieldClause, label);
+    storeResult = this.store.executeQuery(query);
+
+    T objectInStore;
 
     if (storeResult.hasResult()) {
       logger.debug("Object found in database");
-      return storeResult.getSingleResult().get("n", clazz);
+      objectInStore = (T) storeResult.getSingleResult().get("n", TerraformBlock.class);
     } else {
       logger.debug("Creating a new object in the database");
-      return this.store.create(clazz);
+      objectInStore = this.store.create(clazz);
     }
+
+    // TODO rework please. Looks ugly.
+    // if the descriptor is a TerraformBlock but we requested something else -->
+    // convert the descriptor
+    final boolean blockNeedsConversion = !clazz.equals(TerraformBlock.class)
+        && Stream.of(objectInStore.getClass().getAnnotatedInterfaces())
+            .anyMatch(p -> p.getType().getTypeName().equals(TerraformBlock.class.getTypeName()));
+
+    if (blockNeedsConversion) {
+      // we read a TerraformBlock. This might happen when we did not know the correct
+      // type at time of creation. We correct the descriptor now
+      objectInStore = this.store.addDescriptorType(objectInStore, clazz);
+    }
+
+    final String fullQualifiedName = searchCriteria.get(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME);
+    objectInStore.setFullQualifiedName(fullQualifiedName);
+
+    return objectInStore.as(clazz);
   }
 }

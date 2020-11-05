@@ -67,7 +67,7 @@ public class TerraformScannerPluginModuleIT extends AbstractTerraformPluginIT {
     final List<TerraformBlock> actualDependantObjects = actualModule.getDependantResources();
 
     assertThat(actualDependantObjects).hasSize(1).extracting(TerraformBlock::getFullQualifiedName)
-        .containsExactlyInAnyOrder("aws_db_instance.main");
+        .containsExactlyInAnyOrder(".terraform.module.aws_db_instance.main");
 
     // read all properties as some are not part of the model (input parameters)
     final Map<String, String> actualProperties = this.readAllProperties(actualModule);
