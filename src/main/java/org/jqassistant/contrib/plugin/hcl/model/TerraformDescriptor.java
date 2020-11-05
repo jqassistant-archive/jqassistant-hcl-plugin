@@ -37,9 +37,19 @@ public interface TerraformDescriptor extends Descriptor {
 
   String getFullQualifiedName();
 
+  /**
+   * @return The name attribute of the node from the terraform code.
+   */
   String getInternalName();
+
+  /**
+   * @return The name which is shown by default when browsing the database.
+   */
+  String getName();
 
   void setFullQualifiedName(String fullQualifiedName);
 
   void setInternalName(String name);
+
+  void setName(String name);
 }

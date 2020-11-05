@@ -73,6 +73,7 @@ public class Module extends TerraformObject<TerraformModule> {
     object.setCount(this.count);
     object.setForEach(this.forEach);
     object.setInternalName(this.name);
+    object.setName(this.name);
     object.setProviders(this.providers);
     object.setSource(moduleSource);
     object.setVersion(this.version);

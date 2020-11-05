@@ -26,7 +26,7 @@ public abstract class TerraformObject<T extends TerraformBlock> {
    * @return the prefix to use for the full qualified name
    */
   protected static String getFullQualifiedNamePrefix(final Path filePath) {
-    return filePath.getParent().normalize().getParent().toString().replace(File.separatorChar, '.') + ".";
+    return filePath.getParent().normalize().toString().replace(File.separatorChar, '.') + ".";
   }
 
   /**
@@ -61,8 +61,6 @@ public abstract class TerraformObject<T extends TerraformBlock> {
       final TerraformLogicalModule partOfModule, final Class<T> clazz) {
     final T object = storeHelper.createOrRetrieveObject(
         ImmutableMap.of(TerraformDescriptor.FieldName.FULL_QUALIFIED_NAME, fullQualifiedName), partOfModule, clazz);
-
-    object.setFullQualifiedName(fullQualifiedName);
 
     return saveInternalState(object, partOfModule, filePath, storeHelper);
   }

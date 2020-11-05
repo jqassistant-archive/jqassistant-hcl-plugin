@@ -32,6 +32,8 @@ public class Provider extends TerraformObject<TerraformProvider> {
   protected TerraformProvider saveInternalState(final TerraformProvider object,
       final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
     object.setInternalName(this.name);
+    object.setName(this.name);
+    object.setFullQualifiedName(partOfModule.getFullQualifiedName() + "." + this.name);
 
     storeHelper.addPropertiesToObject(object, this.properties);
 

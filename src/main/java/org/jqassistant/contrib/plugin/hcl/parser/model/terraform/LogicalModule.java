@@ -43,9 +43,7 @@ public class LogicalModule extends TerraformObject<TerraformLogicalModule> {
         TerraformLogicalModule.class);
 
     module.setFullQualifiedName(fullQualifiedName);
-
-    // identify the ROOT module
-    module.setInternalName(filePath.getParent().getParent() == null ? "ROOT" : this.name);
+    module.setInternalName(this.name);
 
     return module;
   }

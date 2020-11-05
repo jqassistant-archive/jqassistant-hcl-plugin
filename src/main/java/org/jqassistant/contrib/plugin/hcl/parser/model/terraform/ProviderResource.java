@@ -41,6 +41,8 @@ public class ProviderResource extends TerraformObject<TerraformProviderResource>
   protected TerraformProviderResource saveInternalState(final TerraformProviderResource object,
       final TerraformLogicalModule partOfModule, final Path filePath, final StoreHelper storeHelper) {
     object.setInternalName(this.name);
+    object.setName(this.name);
+    object.setFullQualifiedName(partOfModule.getFullQualifiedName() + "." + this.type + "." + this.name);
     object.setProvider(this.providerName);
     object.setType(this.type);
 

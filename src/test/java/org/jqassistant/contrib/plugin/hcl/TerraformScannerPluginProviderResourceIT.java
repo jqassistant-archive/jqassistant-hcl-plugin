@@ -37,7 +37,7 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
               entry("instance_type", "t2.micro"), entry("provider", "aws"),
               entry("security_groups", "[aws_security_group.server.name]"), entry("tags", "{Name=\"my server\"}"),
               entry("type", "aws_instance"), entry("internalName", "server"),
-              entry("fullQualifiedName", ".terraform.aws_instance.server"));
+              entry("fullQualifiedName", ".terraform.provider resource.aws_instance.server"), entry("name", "server"));
         });
   }
 

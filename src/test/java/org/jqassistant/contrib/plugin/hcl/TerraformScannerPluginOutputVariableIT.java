@@ -32,9 +32,9 @@ public class TerraformScannerPluginOutputVariableIT extends AbstractPluginIT {
     assertThat(actualDescriptor.getModule().getOutputVariables()).hasSize(1).first()
         .extracting(TerraformOutputVariable::getName, TerraformOutputVariable::getDescription,
             TerraformOutputVariable::getSensitive, TerraformOutputVariable::getValue,
-            TerraformOutputVariable::getInternalName)
+            TerraformOutputVariable::getFullQualifiedName, TerraformOutputVariable::getInternalName)
         .containsExactly("db_password", "The password for logging in to the database.", "true",
-            "aws_db_instance.db.password", "output variable.db_password");
+            "aws_db_instance.db.password", ".terraform.output variable.db_password", "db_password");
 
     final List<TerraformBlock> actualDependantObjects = actualDescriptor.getModule().getOutputVariables().get(0)
         .getDependantObjects();
