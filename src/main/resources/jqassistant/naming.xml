@@ -8,16 +8,20 @@
 	</group>
 
 	<constraint id="hcl:ObjectNames">
-		<description>Object names should be lowercase and shouldn't use the '-' sign. Use '_' instead.</description>
+		<description>Object names should contain [a-z_] only.</description>
 		<cypher><![CDATA[
             MATCH
-              (n:Terraform)
-            WHERE NOT
-              package.fqn starts with {rootPackage}
-            RETURN
-              type as TypeOutsideRootPackage
+              (n:Terraform) 
+            WHERE 
+                NOT n.internalName =~ '[a-z_]+'
+              AND
+                NOT n:File
+              AND
+                NOT n:LogicalModule
+              AND
+                NOT n:Module
+            RETURN 
+              n;
         ]]></cypher>
 	</constraint>
-
 </jqassistant-rules>
-
