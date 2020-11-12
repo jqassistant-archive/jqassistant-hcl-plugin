@@ -7,7 +7,7 @@
 		<includeConstraint refId="hcl:ObjectNames" />
 	</group>
 
-	<constraint id="hcl:ObjectNames">
+	<constraint id="hcl:ObjectNames" severity="major">
 		<description>Object names should contain [a-z_] only.</description>
 		<cypher><![CDATA[
             MATCH
