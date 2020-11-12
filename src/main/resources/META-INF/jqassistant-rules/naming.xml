@@ -1,0 +1,27 @@
+<jqassistant-rules
+	xmlns="http://schema.jqassistant.org/rule/v1.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://schema.jqassistant.org/rule/v1.8 https://schema.jqassistant.org/rule/jqassistant-rule-v1.8.xsd">
+
+	<group id="hcl:Naming">
+		<includeConstraint refId="hcl:ObjectNames" />
+	</group>
+
+	<constraint id="hcl:ObjectNames" severity="major">
+		<description>Object names should contain [a-z_] only.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform) 
+            WHERE 
+                NOT n.internalName =~ '[a-z_]+'
+              AND
+                NOT n:File
+              AND
+                NOT n:LogicalModule
+              AND
+                NOT n:Module
+            RETURN 
+              n;
+        ]]></cypher>
+	</constraint>
+</jqassistant-rules>

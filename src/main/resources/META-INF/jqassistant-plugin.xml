@@ -23,5 +23,6 @@
 	</scanner>
 	<rules>
 		<resource>root-module.xml</resource>
+		<resource>naming.xml</resource>
 	</rules>
 </jqassistant-plugin>
