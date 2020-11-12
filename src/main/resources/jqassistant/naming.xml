@@ -1,0 +1,23 @@
+<jqassistant-rules
+	xmlns="http://schema.jqassistant.org/rule/v1.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://schema.jqassistant.org/rule/v1.8 https://schema.jqassistant.org/rule/jqassistant-rule-v1.8.xsd">
+
+	<group id="hcl:Naming">
+		<includeConstraint refId="hcl:ObjectNames" />
+	</group>
+
+	<constraint id="hcl:ObjectNames">
+		<description>Object names should be lowercase and shouldn't use the '-' sign. Use '_' instead.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform)
+            WHERE NOT
+              package.fqn starts with {rootPackage}
+            RETURN
+              type as TypeOutsideRootPackage
+        ]]></cypher>
+	</constraint>
+
+</jqassistant-rules>
+

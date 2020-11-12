@@ -1,7 +1,7 @@
 :toc:
 = jQAssistant HCL Plugin
 
-This project provides a http://jqassistant.org/[jQAssistant] plugin to analyze (https://www.terraform.io/)[HCL] language.
+This project provides a http://jqassistant.org/[jQAssistant] plugin to analyze https://www.terraform.io/[HCL] language.
 
 == Usage
 
