@@ -19,3 +19,6 @@ buildNumber.properties
 # surefire
 .surefire*
 **/.terraform/
+
+# test directory for whole infrastructure test
+src/test/resources/infrastructure*
