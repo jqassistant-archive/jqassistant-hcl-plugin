@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.buschmais.jqassistant.core.rule.api.model.RuleException;
@@ -20,7 +20,7 @@ public class InfrastructureIT extends AbstractPluginIT {
     private static final String INFRASTRUCTURE_DIRECTORY = "/infrastructure/";
 
     @Test
-    @Ignore
+    @Disabled
     public void willAnalyzeTheWholeInfrastructureCode() throws RuleException {
         // given
         final File directoryToScan = new File(this.getClassesDirectory(TerraformScannerPluginIT.class),
