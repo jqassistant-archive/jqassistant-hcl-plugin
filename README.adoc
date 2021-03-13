@@ -42,7 +42,12 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
                 <dependency>                                                                <!--2-->
                     <groupId>org.jqassistant.contrib.plugin</groupId>
                     <artifactId>jqassistant-hcl-plugin</artifactId>
-                    <version>1.0.0</version>
+                    <version>0.1.0</version>
+                </dependency>
+                <dependency>                                                                <!--3-->
+                    <groupId>my.company</groupId>
+                    <artifactId>my.rule.plugin</artifactId>
+                    <version>1.0.0-SNAPSHOT</version>
                 </dependency>
             </dependencies>
         </plugin>
@@ -51,9 +56,13 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
 ----
 <1> Configure wanted concepts of the plugin.
 <2> Declares the plugin as dependency of jQAssistant
+<3> Add your company rules for terraform as a jQAssistant plugin
 
 === HCL Grammar
 Download the https://raw.githubusercontent.com/antlr/grammars-v4/master/terraform/terraform.g4[grammar] and put the file into `src/main/antlr4/prg/jqassistant/contrib/plugin/hcl/grammar/`
+
+== Sample rules to validate Terraform files
+Sample rules used at Hapag-Lloyd AG are available at: https://github.com/Hapag-Lloyd/jqassistant-terraform-rules
 
 == Feedback
 
