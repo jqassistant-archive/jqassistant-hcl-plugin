@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import com.buschmais.jqassistant.core.rule.api.model.RuleException;
