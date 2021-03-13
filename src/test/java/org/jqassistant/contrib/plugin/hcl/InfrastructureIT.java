@@ -16,18 +16,19 @@ import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
  * src/test/resources/infrastructure and go for it.
  */
 public class InfrastructureIT extends AbstractPluginIT {
-  private static final String INFRASTRUCTURE_DIRECTORY = "/infrastructure/";
+    private static final String INFRASTRUCTURE_DIRECTORY = "/infrastructure/";
 
-  @Test
-  public void willAnalyzeTheWholeInfrastructureCode() throws RuleException {
-    // given
-    final File directoryToScan = new File(this.getClassesDirectory(TerraformScannerPluginIT.class),
-        INFRASTRUCTURE_DIRECTORY);
+    @Test
+    @Ignore
+    public void willAnalyzeTheWholeInfrastructureCode() throws RuleException {
+        // given
+        final File directoryToScan = new File(this.getClassesDirectory(TerraformScannerPluginIT.class),
+                INFRASTRUCTURE_DIRECTORY);
 
-    // when
-    this.getScanner().scan(directoryToScan, INFRASTRUCTURE_DIRECTORY, DefaultScope.NONE);
+        // when
+        this.getScanner().scan(directoryToScan, INFRASTRUCTURE_DIRECTORY, DefaultScope.NONE);
 
-    // then
-    assertTrue("Don't forget to ignore this dummy test again!", false);
-  }
+        // then
+        assertTrue("Don't forget to ignore this dummy test again!", false);
+    }
 }
