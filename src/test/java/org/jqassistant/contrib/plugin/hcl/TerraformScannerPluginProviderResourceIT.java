@@ -15,6 +15,7 @@ import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 
 public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformPluginIT {
     private static final String FILE_EGRESS_TF = "/terraform/provider resource/egress.tf";
+    private static final String FILE_INGRESS_TF = "/terraform/provider resource/ingress.tf";
     private static final String FILE_TF = "/terraform/provider resource/main.tf";
     private static final String FILE1_TF = "/terraform/provider resource/different_providers.tf";
 
@@ -87,7 +88,32 @@ public class TerraformScannerPluginProviderResourceIT extends AbstractTerraformP
 
         // then
         assertThat(actualDescriptor.isValid()).isTrue();
-        assertThat(actualDescriptor.getModule().getProviderResources()).hasSize(2);
+        assertThat(actualDescriptor.getModule().getProviderResources())
+                .filteredOn(pr -> "aws_security_group".equals(pr.getType())).hasSize(1).first().satisfies(pr -> {
+                    final Map<String, String> actualProperties = readAllProperties(pr);
+
+                    assertThat(actualProperties.get("egress")).isNotNull();
+                });
+    }
+
+    @Test
+    public void shouldReadIngressBlocks_whenScan_givenAwsSecurityGroup() {
+        // given
+        final File givenTestFile = new File(this.getClassesDirectory(TerraformScannerPluginProviderResourceIT.class),
+                FILE_INGRESS_TF);
+
+        // when
+        final TerraformFileDescriptor actualDescriptor = this.getScanner().scan(givenTestFile, FILE_INGRESS_TF,
+                DefaultScope.NONE);
+
+        // then
+        assertThat(actualDescriptor.isValid()).isTrue();
+        assertThat(actualDescriptor.getModule().getProviderResources())
+                .filteredOn(pr -> "aws_security_group".equals(pr.getType())).hasSize(1).first().satisfies(pr -> {
+                    final Map<String, String> actualProperties = readAllProperties(pr);
+
+                    assertThat(actualProperties.get("ingress")).isNotNull();
+                });
     }
 
     @BeforeEach
