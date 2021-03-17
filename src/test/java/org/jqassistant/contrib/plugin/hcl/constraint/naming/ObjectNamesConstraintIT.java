@@ -1,4 +1,4 @@
-package org.jqassistant.contrib.plugin.hcl.constraint;
+package org.jqassistant.contrib.plugin.hcl.constraint.naming;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
