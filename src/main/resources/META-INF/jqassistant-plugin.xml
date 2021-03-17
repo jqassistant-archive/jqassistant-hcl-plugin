@@ -24,5 +24,6 @@
 	<rules>
 		<resource>root-module.xml</resource>
 		<resource>naming.xml</resource>
+		<resource>terraform-bug.xml</resource>
 	</rules>
 </jqassistant-plugin>
