@@ -45,9 +45,9 @@ Represents a source file in the file system containing Terraform instructions.
 .Relations of :Terraform:File
 [options="header"]
 |====
-| Name         | Target label(s)              | Cardinality | Description
-| REFERENCES   | <<:Terraform:Block>>         | 0..n        | References all objects defined in the file.
-| BELONGS_TO   | <<:Terraform:LogicalModule>> | n..1        | References the logical module this file belongs to.
+| Name             | Target label(s)              | Cardinality | Description
+| REFERENCES       | <<:Terraform:Block>>         | 0..n        | References all objects defined in the file.
+| CONTAINS_PART_OF | <<:Terraform:LogicalModule>> | n..1        | References the logical module this file belongs to.
 |====
 
 === :Terraform:InputVariable

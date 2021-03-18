@@ -4,10 +4,14 @@
 	xsi:schemaLocation="http://schema.jqassistant.org/rule/v1.8 https://schema.jqassistant.org/rule/jqassistant-rule-v1.8.xsd">
 
 	<group id="hcl:Naming">
-		<includeConstraint refId="hcl:ObjectNames" />
+		<includeConstraint refId="hcl:naming:ObjectNames" />
+		<includeConstraint
+			refId="hcl:naming:OutputVariableFileName" />
+		<includeConstraint refId="hcl:naming:InputVariableFileName" />
+		<includeConstraint refId="hcl:naming:LocalVariableFileName" />
 	</group>
 
-	<constraint id="hcl:ObjectNames" severity="major">
+	<constraint id="hcl:naming:ObjectNames" severity="major">
 		<description>Object names should contain [a-z_] only.</description>
 		<cypher><![CDATA[
             MATCH
@@ -24,4 +28,41 @@
               n;
         ]]></cypher>
 	</constraint>
+
+	<constraint id="hcl:naming:OutputVariableFileName" severity="major">
+		<description>Define output variables in a file called 'outputs.tf'.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform:OutputVariable) - [:REFERENCES] - (f:Terraform:File) 
+            WHERE 
+                NOT f.fileName ENDS WITH 'outputs.tf'
+            RETURN 
+              n.internalName, f.fileName;
+        ]]></cypher>
+	</constraint>
+
+	<constraint id="hcl:naming:InputVariableFileName" severity="major">
+		<description>Define input variables in a file called 'inputs.tf'.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform:InputVariable) - [:REFERENCES] - (f:Terraform:File) 
+            WHERE 
+                NOT f.fileName ENDS WITH 'inputs.tf'
+            RETURN 
+              n.internalName, f.fileName;
+        ]]></cypher>
+	</constraint>
+
+	<constraint id="hcl:naming:LocalVariableFileName" severity="major">
+		<description>Define local variables in a file called 'locals.tf'.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform:LocalVariable) - [:REFERENCES] - (f:Terraform:File) 
+            WHERE 
+                NOT f.fileName ENDS WITH 'locals.tf'
+            RETURN 
+              n.internalName, f.fileName;
+        ]]></cypher>
+	</constraint>
+
 </jqassistant-rules>

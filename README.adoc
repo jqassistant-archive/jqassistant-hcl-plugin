@@ -23,18 +23,22 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
         <plugin>
             <groupId>com.buschmais.jqassistant</groupId>
             <artifactId>jqassistant-maven-plugin</artifactId>
-            <version>1.8.0</version>
+            <version>${jqassistant.version}</version>
             <executions>
                 <execution>
+                    <id>default-cli</id>
                     <goals>
                         <goal>scan</goal>
                         <goal>analyze</goal>
                     </goals>
                     <configuration>
                         <concepts>
-                            <concept>ood-metrics:NormalizedDistance</concept>               <!--1-->
-                            <concept>visiblity-metrics:RelativeVisibility</concept>
+                            <concept>hcl:RootModule</concept>                               <!--1-->
                         </concepts>
+                        <groups>
+                            <group>hcl:Naming</group>
+                            <group>hcl:Bugs</group>
+                        </groups>
                     </configuration>
                 </execution>
             </executions>
@@ -56,13 +60,22 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
 ----
 <1> Configure wanted concepts of the plugin.
 <2> Declares the plugin as dependency of jQAssistant
-<3> Add your company rules for terraform as a jQAssistant plugin
+<3> Add your company rules for terraform as a jQAssistant plugin (if needed)
 
 === HCL Grammar
 Download the https://raw.githubusercontent.com/antlr/grammars-v4/master/terraform/terraform.g4[grammar] and put the file into `src/main/antlr4/prg/jqassistant/contrib/plugin/hcl/grammar/`
 
-== Sample rules to validate Terraform files
-Sample rules used at Hapag-Lloyd AG are available at: https://github.com/Hapag-Lloyd/jqassistant-terraform-rules
+== Concepts to apply to Terraform files
+=== hcl:RootModule
+Identifies the root module. Makes further analysis simpler.
+
+== Rules/Contraint to apply to Terraform files
+=== hcl:Naming
+- validates object names
+- ensures that input, output and local variables are defined in separate files
+
+==== hcl:Bugs
+Rules which prohibit the use of some terraform directives as they do not work.
 
 == Feedback
 

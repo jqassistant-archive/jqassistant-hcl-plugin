@@ -27,7 +27,7 @@ public class TerraformBugIT extends AbstractPluginIT {
         this.getScanner().scan(testFile, EGRESS_TF, DefaultScope.NONE);
 
         // when
-        final Result<Constraint> actualConstraint = validateConstraint("hcl:terraform-bug:egress");
+        final Result<Constraint> actualConstraint = validateConstraint("hcl:bug:egress");
 
         // then
         assertThat(actualConstraint.getSeverity()).isEqualTo(Severity.MAJOR);
@@ -50,7 +50,7 @@ public class TerraformBugIT extends AbstractPluginIT {
         this.getScanner().scan(testFile, INGRESS_TF, DefaultScope.NONE);
 
         // when
-        final Result<Constraint> actualConstraint = validateConstraint("hcl:terraform-bug:ingress");
+        final Result<Constraint> actualConstraint = validateConstraint("hcl:bug:ingress");
 
         // then
         assertThat(actualConstraint.getSeverity()).isEqualTo(Severity.MAJOR);

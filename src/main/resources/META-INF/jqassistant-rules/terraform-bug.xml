@@ -3,12 +3,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://schema.jqassistant.org/rule/v1.8 https://schema.jqassistant.org/rule/jqassistant-rule-v1.8.xsd">
 
-	<group id="hcl:terraform-bug">
-		<includeConstraint refId="hcl:terraform-bug:egress" />
-		<includeConstraint refId="hcl:terraform-bug:ingress" />
+	<group id="hcl:Bugs">
+		<includeConstraint refId="hcl:egress" />
+		<includeConstraint refId="hcl:ingress" />
 	</group>
 
-	<constraint id="hcl:terraform-bug:egress" severity="major">
+	<constraint id="hcl:bug:egress" severity="major">
 		<description>Terraform does not handle egress rules correctly if the last egress rule is deleted from the aws_securoty_group. Use aws_security_group_rule instead</description>
 		<cypher><![CDATA[
             MATCH
@@ -22,7 +22,7 @@
         ]]></cypher>
 	</constraint>
 	
-	<constraint id="hcl:terraform-bug:ingress" severity="major">
+	<constraint id="hcl:bug:ingress" severity="major">
         <description>Terraform does not handle ingress rules correctly if the last ingress rule is deleted from the aws_securoty_group. Use aws_security_group_rule instead</description>
         <cypher><![CDATA[
             MATCH
