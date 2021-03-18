@@ -16,7 +16,7 @@ import com.buschmais.jqassistant.core.rule.api.model.Severity;
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
 
-public class ObjectNamesConstraintIT extends AbstractPluginIT {
+public class ObjectNameConstraintIT extends AbstractPluginIT {
   private static final String FILE_FILENAME_TF = "/constraint/naming/file-name.tf";
   private static final String FILE_HYPHEN_TF = "/constraint/naming/object-name-hyphen.tf";
   private static final String FILE_UPPERCASE_TF = "/constraint/naming/object-name-uppercase.tf";

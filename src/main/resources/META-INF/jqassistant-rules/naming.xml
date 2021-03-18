@@ -5,6 +5,10 @@
 
 	<group id="hcl:Naming">
 		<includeConstraint refId="hcl:ObjectNames" />
+		<includeConstraint
+			refId="hcl:OutputVariableFileName" />
+		<includeConstraint refId="hcl:InputVariableFileName" />
+		<includeConstraint refId="hcl:LocalVariableFileName" />
 	</group>
 
 	<constraint id="hcl:ObjectNames" severity="major">
@@ -24,4 +28,41 @@
               n;
         ]]></cypher>
 	</constraint>
+
+	<constraint id="hcl:OutputVariableFileName" severity="major">
+		<description>Define output variables in a file called 'outputs.tf'.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform:OutputVariable) - [:REFERENCES] - (f:Terraform:File) 
+            WHERE 
+                NOT f.fileName ENDS WITH 'outputs.tf'
+            RETURN 
+              n.internalName, f.fileName;
+        ]]></cypher>
+	</constraint>
+
+	<constraint id="hcl:InputVariableFileName" severity="major">
+		<description>Define input variables in a file called 'inputs.tf'.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform:InputVariable) - [:REFERENCES] - (f:Terraform:File) 
+            WHERE 
+                NOT f.fileName ENDS WITH 'inputs.tf'
+            RETURN 
+              n.internalName, f.fileName;
+        ]]></cypher>
+	</constraint>
+
+	<constraint id="hcl:LocalVariableFileName" severity="major">
+		<description>Define local variables in a file called 'locals.tf'.</description>
+		<cypher><![CDATA[
+            MATCH
+              (n:Terraform:LocalVariable) - [:REFERENCES] - (f:Terraform:File) 
+            WHERE 
+                NOT f.fileName ENDS WITH 'locals.tf'
+            RETURN 
+              n.internalName, f.fileName;
+        ]]></cypher>
+	</constraint>
+
 </jqassistant-rules>
