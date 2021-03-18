@@ -32,8 +32,11 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
                         <goal>analyze</goal>
                     </goals>
                     <configuration>
+                        <concepts>
+                            <concept>hcl:RootModule</concept>                               <!--1-->
+                        </concepts>
                         <groups>
-                            <group>hcl:Naming</group>                                       <!--1-->
+                            <group>hcl:Naming</group>
                             <group>hcl:Bugs</group>
                         </groups>
                     </configuration>
@@ -62,12 +65,16 @@ The plugin can be enabled in Maven based project by adding it as a dependency to
 === HCL Grammar
 Download the https://raw.githubusercontent.com/antlr/grammars-v4/master/terraform/terraform.g4[grammar] and put the file into `src/main/antlr4/prg/jqassistant/contrib/plugin/hcl/grammar/`
 
-== Concepts to validate Terraform files
+== Concepts to apply to Terraform files
+=== hcl:RootModule
+Identifies the root module. Makes further analysis simpler.
+
+== Rules/Contraint to apply to Terraform files
 === hcl:Naming
 - validates object names
 - ensures that input, output and local variables are defined in separate files
 
-=== hcl:Bugs
+==== hcl:Bugs
 Rules which prohibit the use of some terraform directives as they do not work.
 
 == Feedback

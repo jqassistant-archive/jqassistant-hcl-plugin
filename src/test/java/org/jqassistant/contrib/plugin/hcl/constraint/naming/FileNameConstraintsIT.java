@@ -27,7 +27,7 @@ public class FileNameConstraintsIT extends AbstractPluginIT {
         this.getScanner().scan(testFile, INPUT_VARIABLE_TF, DefaultScope.NONE);
 
         // when
-        final Result<Constraint> actualConstraint = validateConstraint("hcl:InputVariableFileName");
+        final Result<Constraint> actualConstraint = validateConstraint("hcl:naming:InputVariableFileName");
 
         // then
         assertThat(actualConstraint.getSeverity()).isEqualTo(Severity.MAJOR);
@@ -50,7 +50,7 @@ public class FileNameConstraintsIT extends AbstractPluginIT {
         this.getScanner().scan(testFile, LOCAL_VARIABLE_TF, DefaultScope.NONE);
 
         // when
-        final Result<Constraint> actualConstraint = validateConstraint("hcl:LocalVariableFileName");
+        final Result<Constraint> actualConstraint = validateConstraint("hcl:naming:LocalVariableFileName");
 
         // then
         assertThat(actualConstraint.getSeverity()).isEqualTo(Severity.MAJOR);
@@ -73,7 +73,7 @@ public class FileNameConstraintsIT extends AbstractPluginIT {
         this.getScanner().scan(testFile, OUTPUT_VARIABLE_TF, DefaultScope.NONE);
 
         // when
-        final Result<Constraint> actualConstraint = validateConstraint("hcl:OutputVariableFileName");
+        final Result<Constraint> actualConstraint = validateConstraint("hcl:naming:OutputVariableFileName");
 
         // then
         assertThat(actualConstraint.getSeverity()).isEqualTo(Severity.MAJOR);

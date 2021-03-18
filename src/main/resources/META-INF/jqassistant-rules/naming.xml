@@ -4,14 +4,14 @@
 	xsi:schemaLocation="http://schema.jqassistant.org/rule/v1.8 https://schema.jqassistant.org/rule/jqassistant-rule-v1.8.xsd">
 
 	<group id="hcl:Naming">
-		<includeConstraint refId="hcl:ObjectNames" />
+		<includeConstraint refId="hcl:naming:ObjectNames" />
 		<includeConstraint
-			refId="hcl:OutputVariableFileName" />
-		<includeConstraint refId="hcl:InputVariableFileName" />
-		<includeConstraint refId="hcl:LocalVariableFileName" />
+			refId="hcl:naming:OutputVariableFileName" />
+		<includeConstraint refId="hcl:naming:InputVariableFileName" />
+		<includeConstraint refId="hcl:naming:LocalVariableFileName" />
 	</group>
 
-	<constraint id="hcl:ObjectNames" severity="major">
+	<constraint id="hcl:naming:ObjectNames" severity="major">
 		<description>Object names should contain [a-z_] only.</description>
 		<cypher><![CDATA[
             MATCH
@@ -29,7 +29,7 @@
         ]]></cypher>
 	</constraint>
 
-	<constraint id="hcl:OutputVariableFileName" severity="major">
+	<constraint id="hcl:naming:OutputVariableFileName" severity="major">
 		<description>Define output variables in a file called 'outputs.tf'.</description>
 		<cypher><![CDATA[
             MATCH
@@ -41,7 +41,7 @@
         ]]></cypher>
 	</constraint>
 
-	<constraint id="hcl:InputVariableFileName" severity="major">
+	<constraint id="hcl:naming:InputVariableFileName" severity="major">
 		<description>Define input variables in a file called 'inputs.tf'.</description>
 		<cypher><![CDATA[
             MATCH
@@ -53,7 +53,7 @@
         ]]></cypher>
 	</constraint>
 
-	<constraint id="hcl:LocalVariableFileName" severity="major">
+	<constraint id="hcl:naming:LocalVariableFileName" severity="major">
 		<description>Define local variables in a file called 'locals.tf'.</description>
 		<cypher><![CDATA[
             MATCH
