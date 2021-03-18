@@ -14,11 +14,11 @@ import com.buschmais.xo.neo4j.api.annotation.Relation;
  * @since 1.0
  */
 public interface TerraformFileDescriptor extends TerraformDescriptor, FileDescriptor, ValidDescriptor {
-  @Relation("REFERENCES")
-  List<TerraformBlock> getBlocks();
+    @Relation("REFERENCES")
+    List<TerraformBlock> getBlocks();
 
-  @Relation("BELONGS_TO")
-  TerraformLogicalModule getModule();
+    @Relation("CONTAINS_PART_OF")
+    TerraformLogicalModule getModule();
 
-  void setModule(TerraformLogicalModule module);
+    void setModule(TerraformLogicalModule module);
 }
